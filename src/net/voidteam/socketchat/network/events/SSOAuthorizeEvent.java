@@ -35,8 +35,12 @@ public class SSOAuthorizeEvent extends iEvent {
 
     @Override
     public void run() {
+        if (SocketListener.activeSessions.containsKey(getClient())) {
+            throw new IllegalArgumentException("already.authed");
+        }
+
         if (getPayload().length() != 50) {
-            throw new IllegalArgumentException("Invalid SSO Ticket.");
+            throw new IllegalArgumentException("bad.sso");
         }
 
         String json = null;
@@ -47,7 +51,7 @@ public class SSOAuthorizeEvent extends iEvent {
             Utilities.severe("Couldn't fetch JSON!");
             ex.printStackTrace();
 
-            throw new IllegalArgumentException("SSO Server Down.");
+            throw new IllegalArgumentException("network.unreachable");
         }
 
         /**
@@ -58,7 +62,7 @@ public class SSOAuthorizeEvent extends iEvent {
         LinkedTreeMap jsonValues = gson.fromJson(json, LinkedTreeMap.class);
 
         if (jsonValues.containsKey("profile")) {
-            throw new IllegalArgumentException("Invalid SSO Ticket.");
+            throw new IllegalArgumentException("bad.sso");
         }
 
         String username = (String) jsonValues.get("username");
@@ -67,7 +71,7 @@ public class SSOAuthorizeEvent extends iEvent {
         SocketListener.activeSessions.put(getClient(), username);
 
         if (getClient().isOpen())
-            getClient().send("SSO Ticket Authorized");
+            getClient().send("sso.validated");
 
         /**
          * Check if the user is vanished, and then
@@ -76,9 +80,14 @@ public class SSOAuthorizeEvent extends iEvent {
 
         IUser iUser = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username);
 
-        // TODO - Add localization.
-        if(!iUser.isVanished()) {
-            Bukkit.getServer().broadcastMessage(String.format(ChatColor.YELLOW + "%s joined the webchat.", username));
+        if (!iUser.isVanished()) {
+            for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+                if (socket.isOpen()) {
+                    socket.send(String.format("player.join.webchat=%s", username));
+                }
+            }
+
+            Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " joined the webchat.");
         }
     }
 

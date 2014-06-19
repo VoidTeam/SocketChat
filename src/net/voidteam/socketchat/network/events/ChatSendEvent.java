@@ -1,8 +1,10 @@
 package net.voidteam.socketchat.network.events;
 
 import com.alecgorge.minecraft.jsonapi.JSONAPI;
+import net.ess3.api.IEssentials;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
+import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -29,19 +31,29 @@ public class ChatSendEvent extends iEvent {
          * Check if the client is actually verified.
          */
         if (!SocketListener.activeSessions.containsKey(getClient()))
-            throw new IllegalArgumentException("Authorization failed");
+            throw new IllegalArgumentException("sso.bad");
 
         /**
          * Check if the message is empty.
          */
         if (getPayload().isEmpty())
-            throw new IllegalArgumentException("Empty message");
+            throw new IllegalArgumentException("message.empty");
 
         String username = SocketListener.activeSessions.get(getClient());
+        boolean isMuted = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username).isMuted();
+
+        if(isMuted) {
+            throw new IllegalArgumentException("player.muted");
+        }
+
+        if(Bukkit.getBanList(BanList.Type.NAME).isBanned(username)) {
+            throw new IllegalArgumentException("player.banned");
+        }
 
         if(Bukkit.getOnlinePlayers().length == 0) {
-            throw new IllegalArgumentException("No Players Online");
+            throw new IllegalArgumentException("no.players");
         }
+
 
         try {
             Player player = Bukkit.getServer().getPlayerExact(username);
@@ -56,7 +68,7 @@ public class ChatSendEvent extends iEvent {
 
             if (event.isCancelled()) {
                 Utilities.severe(String.format("Event cancelled while sending! [%s] [msg=%s]", getClient().getRemoteSocketAddress(), getPayload()));
-                throw new IllegalArgumentException("Message cancelled");
+                throw new IllegalArgumentException("message.cancelled");
             }
 
             message = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
@@ -65,7 +77,7 @@ public class ChatSendEvent extends iEvent {
                 recipient.sendMessage(message);
         } catch (Exception ex) {
             ex.printStackTrace();
-            throw new IllegalArgumentException("Message cancelled");
+            throw new IllegalArgumentException("message.cancelled");
         }
     }
 }

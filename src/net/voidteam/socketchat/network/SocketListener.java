@@ -1,10 +1,16 @@
 package net.voidteam.socketchat.network;
 
 
+import net.ess3.api.IEssentials;
+import net.ess3.api.IUser;
 import net.voidteam.socketchat.Utilities;
+import net.voidteam.socketchat.events.MessageEvents;
 import net.voidteam.socketchat.network.events.ChatSendEvent;
 import net.voidteam.socketchat.network.events.SSOAuthorizeEvent;
 import net.voidteam.socketchat.network.events.iEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -37,11 +43,51 @@ public class SocketListener extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         Utilities.debug(String.format("New Connection [%s]", conn.getRemoteSocketAddress()));
+
+        /**
+         * Send the player the message cache.
+         */
+        if (conn.isOpen()) {
+            for (int i = MessageEvents.cachedMessages.size() - 1; i >= 0; i--) {
+                conn.send(String.format("chat.history=%s", MessageEvents.cachedMessages.get(i).replaceAll("§", "&")));
+            }
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                conn.send(String.format("online.list=%s", player.getName()));
+            }
+
+            for (String username : activeSessions.values()) {
+                conn.send(String.format("online.list.webchat=%s", username));
+            }
+        }
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         Utilities.debug(String.format("Closed Connection [%s] [code=%d] [reason=%s]", conn.getRemoteSocketAddress(), code, reason));
+
+
+        if (!activeSessions.containsKey(conn)) {
+            return;
+        }
+
+        /**
+         * Check if the user is vanished, and then
+         * display a leave message.
+         */
+
+        final String username = activeSessions.get(conn);
+        IUser iUser = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username);
+
+        if (!iUser.isVanished()) {
+            for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+                if (socket.isOpen()) {
+                    socket.send(String.format("player.leave.webchat=%s", username));
+                }
+            }
+
+            Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " left the webchat.");
+        }
 
         if (activeSessions.containsKey(conn))
             activeSessions.remove(conn);
@@ -82,8 +128,8 @@ public class SocketListener extends WebSocketServer {
                      * Send back the error provided by the exception.
                      * Usually something like 'Invalid SSO Ticket'
                      */
+                    Utilities.debug(String.format("Sending Error Message: [%s] to [%s]", ex.getMessage(), conn.getRemoteSocketAddress()));
                     conn.send(ex.getMessage());
-                    Utilities.debug(String.format("Bad argument for [%s] [msg=%s]", conn.getRemoteSocketAddress(), ex.getMessage()));
                 }
             } catch (Exception ex) {
                 Utilities.severe(String.format("Could not instantiate %s!", messageBits[0]));
@@ -101,6 +147,7 @@ public class SocketListener extends WebSocketServer {
 
     /**
      * Send a message to registered session by username.
+     *
      * @param username Username of the active session.
      */
     public static boolean sendMessage(String username, String payload) {

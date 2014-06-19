@@ -1,5 +1,6 @@
 package net.voidteam.socketchat.events;
 
+import net.ess3.api.IEssentials;
 import net.voidteam.socketchat.SocketChat;
 import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.Bukkit;
@@ -7,6 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.java_websocket.WebSocket;
 
 import java.util.ArrayList;
@@ -42,16 +45,64 @@ public class MessageEvents implements Listener {
         /**
          * Broadcast the message to the WebChat users.
          */
+
+        boolean isMuted = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(event.getPlayer().getName()).isMuted();
+
+        if (!isMuted) {
+            Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
+                @Override
+                public void run() {
+                    for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+                        if (socket.isOpen()) {
+                            socket.send(String.format("chat.receive=%s", formattedMessage.replaceAll("§", "&")));
+                        }
+                    }
+                }
+            });
+        }
+
+
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        final String name = event.getPlayer().getDisplayName();
+
+        /**
+         * Send the player the message cache.
+         */
+        for (int i = cachedMessages.size() - 1; i >= 0; i--) {
+            event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', cachedMessages.get(i)));
+        }
+
+        /**
+         * Broadcast the join to webchat.
+         */
         Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
             @Override
             public void run() {
                 for (WebSocket socket : SocketListener.activeSessions.keySet()) {
                     if (socket.isOpen()) {
-                        socket.send(String.format("chat.receive=%s", formattedMessage.replace(ChatColor.COLOR_CHAR, '&')));
+                        socket.send(String.format("player.join=%s", name));
                     }
                 }
             }
         });
+    }
 
+    @EventHandler
+    public void onLeave(PlayerQuitEvent event) {
+        final String name = event.getPlayer().getDisplayName();
+
+        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+                    if (socket.isOpen()) {
+                        socket.send(String.format("player.leave=%s", name));
+                    }
+                }
+            }
+        });
     }
 }

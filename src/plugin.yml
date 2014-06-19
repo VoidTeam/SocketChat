@@ -14,8 +14,4 @@ commands:
   socketchat:
     description: 'Command set used by SocketChat.'
     aliases: [sc, webchat]
-<<<<<<< HEAD
-    usage: Syntax error! Simply type /&lt;socketchat&gt; <args>
-=======
     usage: Syntax error! Simply type /socketchat <args>
->>>>>>> 36adbce... Add network-structure along with some more required libraries.
