@@ -1,0 +1,17 @@
+name: 'SocketChat'
+version: 0.0.1
+description: 'Server -> Client WebSocket bridge for Bukkit.'
+
+author: NoEff3x
+authors: [jacklink01, ColbyDude]
+website: http://voidteam.net/minecraft/chat
+
+main: net.voidteam.socketchat.SocketChat
+database: false
+depend: [JSONAPI]
+
+commands:
+  socketchat:
+    description: 'Command set used by SocketChat.'
+    aliases: [sc, webchat]
+    usage: Syntax error! Simply type /&lt;socketchat&gt; <args>
