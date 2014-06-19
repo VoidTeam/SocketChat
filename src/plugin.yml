@@ -14,4 +14,4 @@ commands:
   socketchat:
     description: 'Command set used by SocketChat.'
     aliases: [sc, webchat]
-    usage: Syntax error! Simply type /socketchat <args>
+    usage: Syntax error! Simply type /socketchat <kick-all|kick> [username]
