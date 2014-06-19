@@ -69,6 +69,10 @@ public class SocketChat extends JavaPlugin {
             if (!args[0].equalsIgnoreCase("kick-all"))
                 return false;
 
+            if(!sender.hasPermission("socketchat.kick-all")) {
+                sender.sendMessage(ChatColor.RED + "Not enough permission.");
+            }
+
             for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
                 if (webSocket.isOpen()) {
                     webSocket.send("chat.kicked");
@@ -83,6 +87,10 @@ public class SocketChat extends JavaPlugin {
         if (args.length == 2) {
             if (!args[0].equalsIgnoreCase("kick"))
                 return false;
+
+            if(!sender.hasPermission("socketchat.kick")) {
+                sender.sendMessage(ChatColor.RED + "Not enough permission.");
+            }
 
             WebSocket clientSocket = null;
 
