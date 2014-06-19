@@ -5,4 +5,5 @@ SocketChat
  
  Current Dependencies:
    - JSONAPI
+   - Essentials
    - Java WebSocket API
