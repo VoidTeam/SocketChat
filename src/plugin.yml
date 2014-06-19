@@ -3,7 +3,7 @@ version: 0.0.1
 description: 'Server -> Client WebSocket bridge for Bukkit.'
 
 author: NoEff3x
-authors: [jacklink01, ColbyDude]
+authors: [jacklink01, Colbydude]
 website: http://voidteam.net/minecraft/chat
 
 main: net.voidteam.socketchat.SocketChat
