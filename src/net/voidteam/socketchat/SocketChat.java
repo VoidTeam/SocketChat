@@ -61,7 +61,7 @@ public class SocketChat extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.AQUA + "[SocketChat] Made by Robby Duke intended to bring a WebChat interface to Minecraft.");
+            sender.sendMessage(ChatColor.AQUA + "[SocketChat] Made by Robby Duke (a.k.a NoEff3x).");
             return true;
         }
 
@@ -70,8 +70,10 @@ public class SocketChat extends JavaPlugin {
                 return false;
 
             for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
-                if (webSocket.isOpen())
+                if (webSocket.isOpen()) {
+                    webSocket.send("chat.kicked");
                     webSocket.close();
+                }
             }
 
             SocketListener.activeSessions.clear();
@@ -88,11 +90,13 @@ public class SocketChat extends JavaPlugin {
                 String username = SocketListener.activeSessions.get(socket);
 
                 if (username.equalsIgnoreCase(args[1])) {
-                    if (socket.isOpen())
+                    if (socket.isOpen()) {
+                        socket.send("chat.kicked");
                         socket.close();
+                    }
 
                     SocketListener.activeSessions.remove(socket);
-                    sender.sendMessage(ChatColor.BLUE + "[SocketChat] " + username + " was successfully kicked.");
+                    sender.sendMessage(ChatColor.AQUA + "[SocketChat] " + username + " was successfully kicked.");
                     return true;
                 }
             }
