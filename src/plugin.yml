@@ -8,10 +8,10 @@ website: http://voidteam.net/minecraft/chat
 
 main: net.voidteam.socketchat.SocketChat
 database: false
-depend: [JSONAPI, Essentials]
+depend: [JSONAPI]
 
 commands:
   socketchat:
     description: 'Command set used by SocketChat.'
     aliases: [sc, webchat]
-    usage: Syntax error! Simply type /socketchat <args>
+    usage: Syntax error! Simply type /&lt;socketchat&gt; <args>
