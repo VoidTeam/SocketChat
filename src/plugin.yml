@@ -3,7 +3,7 @@ version: 0.0.1
 description: 'Server -> Client WebSocket bridge for Bukkit.'
 
 author: NoEff3x
-authors: [jacklink01, Colbydude]
+authors: [jAcKlInK01, Colbydude]
 website: http://voidteam.net/minecraft/chat
 
 main: net.voidteam.socketchat.SocketChat
@@ -14,4 +14,8 @@ commands:
   socketchat:
     description: 'Command set used by SocketChat.'
     aliases: [sc, webchat]
+<<<<<<< HEAD
+    usage: Syntax error! Simply type /&lt;socketchat&gt; <args>
+=======
     usage: Syntax error! Simply type /socketchat <args>
+>>>>>>> 36adbce... Add network-structure along with some more required libraries.
