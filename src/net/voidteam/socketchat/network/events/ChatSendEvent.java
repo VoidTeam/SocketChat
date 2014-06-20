@@ -5,6 +5,7 @@ import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.java_websocket.WebSocket;
@@ -71,8 +72,13 @@ public class ChatSendEvent extends iEvent {
 
             message = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
 
+            // Send to players on server
             for (Player recipient : Bukkit.getServer().getOnlinePlayers())
                 recipient.sendMessage(message);
+            
+            // Broadcast to server
+            Bukkit.getServer().getConsoleSender().sendMessage(message);
+            
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new IllegalArgumentException("message.cancelled");

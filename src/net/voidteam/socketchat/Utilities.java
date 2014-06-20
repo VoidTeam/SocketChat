@@ -10,7 +10,7 @@ import java.util.logging.Level;
  * @time 12:54 AM
  */
 public class Utilities {
-    private static final boolean debugMode = true;
+    private static final boolean debugMode = false;
     private static final String prefix = "[SocketChat] ";
 
     /**

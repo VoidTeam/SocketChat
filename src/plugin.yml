@@ -8,7 +8,7 @@ website: http://voidteam.net/minecraft/chat
 
 main: net.voidteam.socketchat.SocketChat
 database: false
-depend: [Essentials]
+depend: [Essentials, PExChat]
 
 commands:
   socketchat:
