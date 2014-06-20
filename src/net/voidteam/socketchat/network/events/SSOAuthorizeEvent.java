@@ -78,7 +78,16 @@ public class SSOAuthorizeEvent extends iEvent {
          * display a join message.
          */
 
-        IUser iUser = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username);
+        IUser iUser = null;
+        try {
+            iUser = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username);
+        } catch (NullPointerException ex) {
+            throw new IllegalArgumentException("needs.profile");
+        }
+
+        if (iUser == null) {
+            throw new IllegalArgumentException("needs.profile");
+        }
 
         if (!iUser.isVanished()) {
             for (WebSocket socket : SocketListener.activeSessions.keySet()) {

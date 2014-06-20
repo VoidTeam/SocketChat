@@ -69,12 +69,13 @@ public class SocketChat extends JavaPlugin {
             if (!args[0].equalsIgnoreCase("kick-all"))
                 return false;
 
-            if(!sender.hasPermission("socketchat.kick-all")) {
+            if (!sender.hasPermission("socketchat.kick-all")) {
                 sender.sendMessage(ChatColor.RED + "Not enough permission.");
             }
 
             for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
                 if (webSocket.isOpen()) {
+                    Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + SocketListener.activeSessions.get(webSocket) + " left the webchat.");
                     webSocket.send("chat.kicked");
                     webSocket.close();
                 }
@@ -88,25 +89,38 @@ public class SocketChat extends JavaPlugin {
             if (!args[0].equalsIgnoreCase("kick"))
                 return false;
 
-            if(!sender.hasPermission("socketchat.kick")) {
+            if (!sender.hasPermission("socketchat.kick")) {
                 sender.sendMessage(ChatColor.RED + "Not enough permission.");
             }
 
             WebSocket clientSocket = null;
 
-            for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-                String username = SocketListener.activeSessions.get(socket);
+            if (SocketListener.activeSessions.containsValue(args[0])) {
+                String formattedUsername = "";
 
-                if (username.equalsIgnoreCase(args[1])) {
-                    if (socket.isOpen()) {
-                        socket.send("chat.kicked");
-                        socket.close();
+                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+                    String username = SocketListener.activeSessions.get(socket);
+
+                    if (username.equalsIgnoreCase(args[1])) {
+                        if (socket.isOpen()) {
+                            socket.send("chat.kicked");
+                            socket.close();
+                        }
+
+                        formattedUsername = username;
+
+                        SocketListener.activeSessions.remove(socket);
+                        sender.sendMessage(ChatColor.AQUA + "[SocketChat] " + username + " was successfully kicked.");
+                        return true;
+                    } else {
+                        if (socket.isOpen()) {
+                            socket.send(String.format("player.leave.webchat=%s", username));
+                        }
                     }
-
-                    SocketListener.activeSessions.remove(socket);
-                    sender.sendMessage(ChatColor.AQUA + "[SocketChat] " + username + " was successfully kicked.");
-                    return true;
                 }
+
+                Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + formattedUsername + " left the webchat.");
+                return true;
             }
         }
 

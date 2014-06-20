@@ -79,7 +79,7 @@ public class SocketListener extends WebSocketServer {
         final String username = activeSessions.get(conn);
         IUser iUser = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username);
 
-        if (!iUser.isVanished()) {
+        if (iUser != null && !iUser.isVanished()) {
             for (WebSocket socket : SocketListener.activeSessions.keySet()) {
                 if (socket.isOpen()) {
                     socket.send(String.format("player.leave.webchat=%s", username));

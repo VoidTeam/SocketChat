@@ -40,7 +40,13 @@ public class ChatSendEvent extends iEvent {
             throw new IllegalArgumentException("message.empty");
 
         String username = SocketListener.activeSessions.get(getClient());
-        boolean isMuted = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username).isMuted();
+
+        boolean isMuted = false;
+        try {
+            isMuted = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username).isMuted();
+        } catch (NullPointerException ex) {
+            throw new IllegalArgumentException("needs.profile");
+        }
 
         if(isMuted) {
             throw new IllegalArgumentException("player.muted");
@@ -48,10 +54,6 @@ public class ChatSendEvent extends iEvent {
 
         if(Bukkit.getBanList(BanList.Type.NAME).isBanned(username)) {
             throw new IllegalArgumentException("player.banned");
-        }
-
-        if(Bukkit.getOnlinePlayers().length == 0) {
-            throw new IllegalArgumentException("no.players");
         }
 
 
