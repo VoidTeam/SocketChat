@@ -124,9 +124,9 @@ public class SocketListener extends WebSocketServer {
              * the try-catch statement will correct the issue.
              */
             try {
-                Class<? extends iEvent> event = validEvents.get(payload);
+                Class<? extends iEvent> event = validEvents.get(header);
                 Constructor<? extends iEvent> cons = event.getConstructor(WebSocket.class, String.class);
-                iEvent object = cons.newInstance(conn, messageBits[1]);
+                iEvent object = cons.newInstance(conn, payload);
 
                 /**
                  * Call the method run in the constructed class.
