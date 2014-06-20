@@ -1,6 +1,5 @@
 package net.voidteam.socketchat.network.events;
 
-import com.alecgorge.minecraft.jsonapi.JSONAPI;
 import net.ess3.api.IEssentials;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
@@ -58,10 +57,7 @@ public class ChatSendEvent extends iEvent {
 
 
         try {
-            Player player = Bukkit.getServer().getPlayerExact(username);
-
-            if (player == null)
-                player = JSONAPI.loadOfflinePlayer(username);
+            Player player = OfflinePlayerLoader.load(username);
 
             String message = getPayload();
 
