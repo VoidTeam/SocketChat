@@ -1,0 +1,87 @@
+@font-face
+{
+	font-family: 'Minecraft';
+	src: url('fonts/Minecraft/minecraft-webfont.eot');
+	src: url('fonts/Minecraft/minecraft-webfont.eot?#iefix') format('embedded-opentype'),
+		 url('fonts/Minecraft/minecraft-webfont.woff') format('woff'),
+		 url('fonts/Minecraft/minecraft-webfont.ttf') format('truetype'),
+		 url('fonts/Minecraft/minecraft-webfont.svg#') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+/* Page Styles */
+.minecraft
+{
+	background-color: #202020;
+	color: white;
+	font-family: 'Minecraft', sans-serif;
+	font-size: 15px;
+	overflow: hidden;
+	padding: 5px;
+}
+
+#chatlog
+{
+	overflow-y: scroll;
+	height: 470px;
+}
+
+/* Minecraft Rank Colors */
+
+span.admin
+{
+	color: #aa0000;
+}
+
+span.mod
+{
+	color: #ff5555;
+}
+
+span.member
+{
+	color: #55ff55;
+}
+
+span.guest
+{
+	color: #ffffff;
+}
+
+/* WebChat Organization Colors */
+
+span.groups
+{
+	color: #aaaaaa;
+}
+
+span.colon
+{
+	color: #aaaaaa;
+}
+
+span.message
+{
+	color: #ffffff;
+}
+
+span.player
+{
+	color: rgba(255,255,255,0.3);
+}
+
+.darkinput
+{
+	border-color: #575757;
+	background-color: #353535;
+	color: white;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+	border-top: 1px solid #9e9e9e;
+}
+
+.darkinput:disabled
+{
+	background-color: #5b0000;
+}
