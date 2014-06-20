@@ -5,7 +5,6 @@ SocketChat
 
  Current Dependencies:
    - [Essentials](https://github.com/essentials/Essentials)
-   - [JSONAPI](https://github.com/alecgorge/jsonapi)
    - Java WebSocket API
 
  Commands:
