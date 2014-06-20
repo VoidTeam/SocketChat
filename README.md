@@ -1,11 +1,11 @@
 SocketChat
 ==========
- 
+
  A Bukkit plugin for the VoidTeam web chat system.
- 
+
  Current Dependencies:
-   - JSONAPI
-   - Essentials
+   - [Essentials](https://github.com/essentials/Essentials)
+   - [JSONAPI](https://github.com/alecgorge/jsonapi)
    - Java WebSocket API
 
  Commands:
