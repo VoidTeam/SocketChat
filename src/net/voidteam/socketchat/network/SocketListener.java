@@ -111,6 +111,7 @@ public class SocketListener extends WebSocketServer {
         if(messageBits.length == 1) {
             header = messageBits[0];
         } else if(messageBits.length == 2) {
+            header = messageBits[0];
             payload = messageBits[1];
         }
 
