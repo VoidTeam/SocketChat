@@ -94,7 +94,7 @@ public class SocketListener extends WebSocketServer {
     }
 
     /**
-     * Anytime a message over any of the established
+     * Any time a message over any of the established
      * connections sends us a message.
      *
      * @param conn    The senders WebSocket connection.

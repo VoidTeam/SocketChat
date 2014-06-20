@@ -45,6 +45,9 @@ public class SSOAuthorizeEvent extends iEvent {
 
         String json = null;
 
+        /**
+         * TODO - Add URL to config
+         */
         try {
             json = getText("http://voidteam.net/minecraft/api/check_webchat_ticket/".concat(getPayload()));
         } catch (Exception ex) {

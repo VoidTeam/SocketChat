@@ -60,13 +60,11 @@ public class MessageEvents implements Listener {
                 }
             });
         }
-
-
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        final String name = event.getPlayer().getDisplayName();
+        final String name = event.getPlayer().getName();
 
         /**
          * Send the player the message cache.
@@ -92,7 +90,7 @@ public class MessageEvents implements Listener {
 
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
-        final String name = event.getPlayer().getDisplayName();
+        final String name = event.getPlayer().getName();
 
         Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
             @Override

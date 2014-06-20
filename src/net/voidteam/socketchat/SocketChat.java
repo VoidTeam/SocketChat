@@ -93,7 +93,7 @@ public class SocketChat extends JavaPlugin {
                 sender.sendMessage(ChatColor.RED + "Not enough permission.");
             }
 
-            WebSocket clientSocket = null;
+            //WebSocket clientSocket = null; // Wot is dis doing here?
 
             if (SocketListener.activeSessions.containsValue(args[0])) {
                 String formattedUsername = "";
