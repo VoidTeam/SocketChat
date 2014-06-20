@@ -103,18 +103,27 @@ public class SocketListener extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         Utilities.debug(String.format("Received [%s] from [%s]", message, conn.getRemoteSocketAddress()));
-        String[] messageBits = message.split("=");
+        String[] messageBits = message.split("=", 2);
+
+        String header = "";
+        String payload = "";
+
+        if(messageBits.length == 1) {
+            header = messageBits[0];
+        } else if(messageBits.length == 2) {
+            payload = messageBits[1];
+        }
 
         /**
          * Check if the message header is a valid event.
          */
-        if (validEvents.containsKey(messageBits[0])) {
+        if (validEvents.containsKey(header)) {
             /**
              * Construct the found class, if any error occurs
              * the try-catch statement will correct the issue.
              */
             try {
-                Class<? extends iEvent> event = validEvents.get(messageBits[0]);
+                Class<? extends iEvent> event = validEvents.get(payload);
                 Constructor<? extends iEvent> cons = event.getConstructor(WebSocket.class, String.class);
                 iEvent object = cons.newInstance(conn, messageBits[1]);
 
