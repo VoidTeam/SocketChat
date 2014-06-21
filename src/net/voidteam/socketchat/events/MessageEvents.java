@@ -65,6 +65,7 @@ public class MessageEvents implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         final String name = event.getPlayer().getName();
+        boolean isHidden = false;
 
         /**
          * Send the player the message cache.
@@ -77,25 +78,37 @@ public class MessageEvents implements Listener {
          * If this player is not vanished,
          * Broadcast the join to webchat.
          */
+        
+        try {
+        	isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(name).isHidden(); 
+        }
+        catch (NullPointerException ex) {}
 
-        final boolean isVanished = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(name).isHidden();   
-
-        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-                    if (socket.isOpen()) {
-                        if (!isVanished) {
-                        	socket.send(String.format("player.join=%s", name));
-                        }
-                        else
-                        {
-                        	socket.send(String.format("player.join.vanished=%s", name));
-                        }
-                    }
-                }
-            }
-        });
+        if (!isHidden) {
+	        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
+	            @Override
+	            public void run() {
+	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+	                    if (socket.isOpen()) {
+	                        	socket.send(String.format("player.join=%s", name));
+	                    }
+	                }
+	            }
+	        });
+        }
+        else
+        {
+	        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
+	            @Override
+	            public void run() {
+	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+	                    if (socket.isOpen()) {
+	                        	socket.send(String.format("player.join.vanished=%s", name));
+	                    }
+	                }
+	            }
+	        });
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -113,23 +126,30 @@ public class MessageEvents implements Listener {
         }
         catch (NullPointerException ex) {}
 
-        final boolean isVanished = isHidden;
-        
-        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-                    if (socket.isOpen()) {
-                        if (!isVanished) {
-                        	socket.send(String.format("player.leave=%s", isVanished + name));
-                        }
-                        else
-                        {
-                        	socket.send(String.format("player.leave.vanished=%s", name));
-                        }
-                    }
-                }
-            }
-        });
+        if (!isHidden) {
+	        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
+	            @Override
+	            public void run() {
+	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+	                    if (socket.isOpen()) {
+	                        	socket.send(String.format("player.leave=%s", name));
+	                    }
+	                }
+	            }
+	        });
+        }
+        else
+        {
+        	Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
+	            @Override
+	            public void run() {
+	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+	                    if (socket.isOpen()) {
+	                        	socket.send(String.format("player.leave.vanished=%s", name));
+	                    }
+	                }
+	            }
+	        });
+        }
     }
 }
