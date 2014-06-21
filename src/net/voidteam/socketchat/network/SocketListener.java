@@ -71,23 +71,15 @@ public class SocketListener extends WebSocketServer {
             return;
         }
 
-        /**
-         * Check if the user is vanished, and then
-         * display a leave message.
-         */
-
         final String username = activeSessions.get(conn);
-        IUser iUser = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username);
-
-        if (iUser != null && !iUser.isVanished()) {
-            for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-                if (socket.isOpen()) {
-                    socket.send(String.format("player.leave.webchat=%s", username));
-                }
+        
+        for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+            if (socket.isOpen()) {
+                socket.send(String.format("player.leave.webchat=%s", username));
             }
-
-            Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " left the webchat.");
         }
+
+        Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " left the webchat.");
 
         if (activeSessions.containsKey(conn))
             activeSessions.remove(conn);

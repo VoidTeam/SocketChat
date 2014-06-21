@@ -6,6 +6,7 @@ import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -31,7 +32,6 @@ public class MessageEvents implements Listener {
 
         /**
          * Add the message to the message cache
-         * Jack requested this function.
          */
         cachedMessages.add(0, formattedMessage);
 
@@ -74,30 +74,53 @@ public class MessageEvents implements Listener {
         }
 
         /**
+         * If this player is not vanished,
          * Broadcast the join to webchat.
          */
+
+        final boolean isVanished = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(name).isHidden();   
+
         Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
             @Override
             public void run() {
                 for (WebSocket socket : SocketListener.activeSessions.keySet()) {
                     if (socket.isOpen()) {
-                        socket.send(String.format("player.join=%s", name));
+                        if (!isVanished) {
+                        	socket.send(String.format("player.join=%s", name));
+                        }
+                        else
+                        {
+                        	socket.send(String.format("player.join.vanished=%s", name));
+                        }
                     }
                 }
             }
         });
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onLeave(PlayerQuitEvent event) {
         final String name = event.getPlayer().getName();
+
+        /**
+         * If this player is not vanished,
+         * Broadcast the leave to webchat.
+         */
+
+        final boolean isVanished = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(name).isHidden(); 
 
         Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
             @Override
             public void run() {
                 for (WebSocket socket : SocketListener.activeSessions.keySet()) {
                     if (socket.isOpen()) {
-                        socket.send(String.format("player.leave=%s", name));
+                        if (!isVanished) {
+                        	socket.send(String.format("player.leave=%s", isVanished + name));
+                        }
+                        else
+                        {
+                        	socket.send(String.format("player.leave.vanished=%s", name));
+                        }
                     }
                 }
             }

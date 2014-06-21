@@ -14,4 +14,10 @@ commands:
   socketchat:
     description: 'Command set used by SocketChat.'
     aliases: [sc, webchat]
-    usage: Syntax error! Simply type /socketchat <kick-all|kick> [username]
+    usage: /sc <kickall|kick> [username]
+  wkick:
+    description: 'Kick command for SocketChat.'
+    usage: /wkick <username>
+  wkickall:
+    description: 'Kickall command for SocketChat.'
+    usage: /wkickall

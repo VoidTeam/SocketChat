@@ -76,11 +76,6 @@ public class SSOAuthorizeEvent extends iEvent {
         if (getClient().isOpen())
             getClient().send("sso.validated");
 
-        /**
-         * Check if the user is vanished, and then
-         * display a join message.
-         */
-
         IUser iUser = null;
         try {
             iUser = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username);
@@ -91,16 +86,14 @@ public class SSOAuthorizeEvent extends iEvent {
         if (iUser == null) {
             throw new IllegalArgumentException("needs.profile");
         }
-
-        if (!iUser.isVanished()) {
-            for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-                if (socket.isOpen()) {
-                    socket.send(String.format("player.join.webchat=%s", username));
-                }
+        
+        for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+            if (socket.isOpen()) {
+                socket.send(String.format("player.join.webchat=%s", username));
             }
-
-            Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " joined the webchat.");
         }
+
+        Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " joined the webchat.");
     }
 
     public static String getText(String url) throws Exception {
