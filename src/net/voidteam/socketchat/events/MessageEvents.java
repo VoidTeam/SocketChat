@@ -64,9 +64,9 @@ public class MessageEvents implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        final String name = event.getPlayer().getName();
+        final String username = event.getPlayer().getName();
         boolean isHidden = false;
-
+        
         /**
          * Send the player the message cache.
          */
@@ -80,17 +80,18 @@ public class MessageEvents implements Listener {
          */
         
         try {
-        	isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(name).isHidden(); 
+        	isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username).isHidden();
         }
         catch (NullPointerException ex) {}
-
+        
         if (!isHidden) {
 	        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
 	            @Override
 	            public void run() {
 	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
 	                    if (socket.isOpen()) {
-	                        	socket.send(String.format("player.join=%s", name));
+	                        	socket.send(String.format("player.join=%s", username));
+	                        	socket.send(String.format("online.list.join=%s", username));
 	                    }
 	                }
 	            }
@@ -103,7 +104,7 @@ public class MessageEvents implements Listener {
 	            public void run() {
 	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
 	                    if (socket.isOpen()) {
-	                        	socket.send(String.format("player.join.vanished=%s", name));
+	                        	socket.send(String.format("player.join.vanished=%s", username));
 	                    }
 	                }
 	            }
@@ -113,7 +114,7 @@ public class MessageEvents implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onLeave(PlayerQuitEvent event) {
-        final String name = event.getPlayer().getName();
+        final String username = event.getPlayer().getName();
         boolean isHidden = false;
 
         /**
@@ -122,7 +123,7 @@ public class MessageEvents implements Listener {
          */
         
         try {
-        	isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(name).isHidden(); 
+        	isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username).isHidden(); 
         }
         catch (NullPointerException ex) {}
 
@@ -132,7 +133,8 @@ public class MessageEvents implements Listener {
 	            public void run() {
 	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
 	                    if (socket.isOpen()) {
-	                        	socket.send(String.format("player.leave=%s", name));
+	                        	socket.send(String.format("player.leave=%s", username));
+	                        	socket.send(String.format("online.list.leave=%s", username));
 	                    }
 	                }
 	            }
@@ -145,7 +147,7 @@ public class MessageEvents implements Listener {
 	            public void run() {
 	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
 	                    if (socket.isOpen()) {
-	                        	socket.send(String.format("player.leave.vanished=%s", name));
+	                        	socket.send(String.format("player.leave.vanished=%s", username));
 	                    }
 	                }
 	            }

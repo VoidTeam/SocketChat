@@ -75,7 +75,7 @@ public class ChatSendEvent extends iEvent {
             for (Player recipient : Bukkit.getServer().getOnlinePlayers())
                 recipient.sendMessage(message);
             
-            // Broadcast to server
+            // Show in Console
             Bukkit.getServer().getConsoleSender().sendMessage(message);
             
         } catch (Exception ex) {

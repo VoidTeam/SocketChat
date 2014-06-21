@@ -8,12 +8,15 @@ import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.libs.com.google.gson.Gson;
+import org.bukkit.entity.Player;
 import org.java_websocket.WebSocket;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Robby Duke on 6/19/14.
@@ -32,15 +35,26 @@ public class SSOAuthorizeEvent extends iEvent {
         super(client, payload);
     }
 
+    public static List<String> spyList = new ArrayList<String>();
 
-    @Override
+
+    @SuppressWarnings({ "rawtypes", "deprecation" })
+	@Override
     public void run() {
+        String ticket = getPayload();
+        boolean spy = false;
+        
         if (SocketListener.activeSessions.containsKey(getClient())) {
             throw new IllegalArgumentException("already.authed");
         }
+        
+        if (ticket.contains("-spy-")) {
+        	spy = true;
+        	ticket = ticket.replaceAll("-spy-", "");
+        }
 
-        if (getPayload().length() != 50) {
-            throw new IllegalArgumentException("bad.sso");
+        if (ticket.length() != 50) {
+            throw new IllegalArgumentException("bad.sso=length."+ticket);
         }
 
         String json = null;
@@ -49,7 +63,7 @@ public class SSOAuthorizeEvent extends iEvent {
          * TODO - Add URL to config
          */
         try {
-            json = getText("http://voidteam.net/minecraft/api/check_webchat_ticket/".concat(getPayload()));
+            json = getText("http://voidteam.net/minecraft/api/check_webchat_ticket/".concat(ticket));
         } catch (Exception ex) {
             Utilities.severe("Couldn't fetch JSON!");
             ex.printStackTrace();
@@ -65,11 +79,11 @@ public class SSOAuthorizeEvent extends iEvent {
         LinkedTreeMap jsonValues = gson.fromJson(json, LinkedTreeMap.class);
 
         if (jsonValues.containsKey("profile")) {
-            throw new IllegalArgumentException("bad.sso");
+            throw new IllegalArgumentException("bad.sso=profile."+ticket);
         }
 
         String username = (String) jsonValues.get("username");
-        Utilities.debug(String.format("Validated SSO Ticket [%s] [username=%s]", getPayload(), username));
+        Utilities.debug(String.format("Validated SSO Ticket [%s] [username=%s]", ticket, username));
 
         SocketListener.activeSessions.put(getClient(), username);
 
@@ -87,13 +101,28 @@ public class SSOAuthorizeEvent extends iEvent {
             throw new IllegalArgumentException("needs.profile");
         }
         
+        if (spy == true) {
+            //Player player = Bukkit.getPlayer(username);
+            // if (!player.hasPermission("socketchat.spy")) {
+            //     throw new IllegalArgumentException("no.spy");
+            // }
+            spyList.add(username);
+            getClient().send("spying");
+        }
+        
         for (WebSocket socket : SocketListener.activeSessions.keySet()) {
             if (socket.isOpen()) {
-                socket.send(String.format("player.join.webchat=%s", username));
+                if (!spyList.contains(username)) {
+                	socket.send(String.format("player.webchat.join=%s", username));
+                	socket.send(String.format("online.list.webchat.join=%s", username));
+                } else {
+                	socket.send(String.format("player.webchat.join.spy=%s", username));
+                }
             }
         }
 
-        Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " joined the webchat.");
+        if (!spyList.contains(username))
+	        Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " joined the webchat.");
     }
 
     public static String getText(String url) throws Exception {
