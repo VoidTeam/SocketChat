@@ -111,7 +111,7 @@ public class MessageEvents implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onLeave(PlayerQuitEvent event) {
         final String name = event.getPlayer().getName();
         boolean isHidden = false;
