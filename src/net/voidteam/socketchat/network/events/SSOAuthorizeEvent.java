@@ -8,7 +8,6 @@ import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.libs.com.google.gson.Gson;
-import org.bukkit.entity.Player;
 import org.java_websocket.WebSocket;
 
 import java.io.BufferedReader;
@@ -38,7 +37,7 @@ public class SSOAuthorizeEvent extends iEvent {
     public static List<String> spyList = new ArrayList<String>();
 
 
-    @SuppressWarnings({ "rawtypes", "deprecation" })
+    @SuppressWarnings({ "rawtypes" })
 	@Override
     public void run() {
         String ticket = getPayload();

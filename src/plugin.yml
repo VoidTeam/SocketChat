@@ -14,7 +14,7 @@ commands:
   socketchat:
     description: 'Command set used by SocketChat.'
     aliases: [sc, webchat]
-    usage: /sc <kickall|kick> [username]
+    usage: /sc <list|kick|kickall> [username]
   wkick:
     description: 'Kick command for SocketChat.'
     usage: /wkick <username>

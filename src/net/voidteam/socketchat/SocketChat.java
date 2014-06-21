@@ -1,7 +1,13 @@
 package net.voidteam.socketchat;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import net.voidteam.socketchat.events.MessageEvents;
 import net.voidteam.socketchat.network.SocketListener;
+import net.voidteam.socketchat.network.events.SSOAuthorizeEvent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -88,6 +94,24 @@ public class SocketChat extends JavaPlugin {
     	
     	if (args.length == 1)
     	{
+    		if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("who"))
+    		{
+    		    List<String> onlineList = new ArrayList<String>();
+    		    
+	            for (String username : SocketListener.activeSessions.values()) {
+	                if (SSOAuthorizeEvent.spyList.contains(username)) {
+	                	if (sender.hasPermission("socketchat.spy")) {
+	                		onlineList.add("&8[HIDDEN]&e" + username + "&f");
+	                	}
+	                } else {
+		                onlineList.add("&e" + username + "&f");
+	                }
+	            }
+	            if (!implode(onlineList).equals("")) {
+	            	sender.sendMessage(ChatColor.GRAY + "Webchat: " + ChatColor.translateAlternateColorCodes('&', implode(onlineList).substring(2)));
+	            	return true;
+	            }
+    		}
     		if (args[0].equalsIgnoreCase("kickall"))
     		{
                 if (!sender.hasPermission("socketchat.kickall")) {
@@ -175,6 +199,24 @@ public class SocketChat extends JavaPlugin {
 	        }
 	    }
 		return false;
+    }
+    
+    public static String implode(List<String> list) {
+    	
+        // If this list is empty, it only contained blank values
+        if( list.isEmpty()) {
+            return "";
+        }
+
+        // Format the ArrayList as a string, similar to implode
+        StringBuilder builder = new StringBuilder();
+        
+        for( String s : list) {
+            builder.append( ", ");
+            builder.append( s);
+        }
+
+        return builder.toString();
     }
 
     /**
