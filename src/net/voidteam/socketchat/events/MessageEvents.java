@@ -101,14 +101,20 @@ public class MessageEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLeave(PlayerQuitEvent event) {
         final String name = event.getPlayer().getName();
+        boolean isHidden = false;
 
         /**
          * If this player is not vanished,
          * Broadcast the leave to webchat.
          */
+        
+        try {
+        	isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(name).isHidden(); 
+        }
+        catch (NullPointerException ex) {}
 
-        final boolean isVanished = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(name).isHidden(); 
-
+        final boolean isVanished = isHidden;
+        
         Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
             @Override
             public void run() {
