@@ -1,6 +1,7 @@
 package net.voidteam.socketchat.network.events;
 
 import net.ess3.api.IEssentials;
+import net.voidteam.socketchat.OfflinePlayerLoader;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.BanList;
@@ -24,7 +25,8 @@ public class ChatSendEvent extends iEvent {
         super(client, payload);
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void run() {
         /**
          * Check if the client is actually verified.
@@ -57,7 +59,9 @@ public class ChatSendEvent extends iEvent {
 
 
         try {
-            Player player = OfflinePlayerLoader.load(username);
+			Player player = Bukkit.getServer().getPlayerExact(username);
+			if(player == null)
+            	player = OfflinePlayerLoader.load(username);
 
             String message = getPayload();
 
@@ -72,7 +76,7 @@ public class ChatSendEvent extends iEvent {
             message = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
 
             // Send to players on server
-            for (Player recipient : Bukkit.getServer().getOnlinePlayers())
+            for (Player recipient : event.getRecipients())
                 recipient.sendMessage(message);
             
             // Show in Console

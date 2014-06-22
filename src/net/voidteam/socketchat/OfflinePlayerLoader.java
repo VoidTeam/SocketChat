@@ -1,4 +1,4 @@
-package net.voidteam.socketchat.network.events;
+package net.voidteam.socketchat;
 
 import java.io.File;
 import java.util.UUID;

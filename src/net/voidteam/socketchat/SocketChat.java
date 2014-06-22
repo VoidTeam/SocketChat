@@ -54,7 +54,7 @@ public class SocketChat extends JavaPlugin {
          * Create the SocketListener object
          * on port 1337. TODO - Add config option.
          */
-        listener = new SocketListener(1337);
+        listener = new SocketListener(7331);
         listener.start();
 
         /**

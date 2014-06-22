@@ -2,12 +2,15 @@ package net.voidteam.socketchat.network.events;
 
 import net.ess3.api.IEssentials;
 import net.ess3.api.IUser;
+import net.milkbowl.vault.permission.Permission;
 import net.minecraft.util.com.google.gson.internal.LinkedTreeMap;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.libs.com.google.gson.Gson;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.java_websocket.WebSocket;
 
 import java.io.BufferedReader;
@@ -16,6 +19,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Created by Robby Duke on 6/19/14.
@@ -30,12 +34,22 @@ public class SSOAuthorizeEvent extends iEvent {
      *
      * @param payload The SSO ticket being authorized.
      */
+
+	Permission perms;
+	
     public SSOAuthorizeEvent(WebSocket client, String payload) {
         super(client, payload);
+
+    	if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
+    		Utilities.log("You don't have Vault installed, you cannot use permission methods!");
+    	} else {
+    		RegisteredServiceProvider<Permission> rsp = (RegisteredServiceProvider<Permission>)Bukkit.getServer().getServicesManager().getRegistration(Permission.class);
+    		perms = rsp.getProvider();
+    	}
     }
 
     public static List<String> spyList = new ArrayList<String>();
-
+    
 
     @SuppressWarnings({ "rawtypes" })
 	@Override
@@ -101,12 +115,13 @@ public class SSOAuthorizeEvent extends iEvent {
         }
         
         if (spy == true) {
-            //Player player = Bukkit.getPlayer(username);
-            // if (!player.hasPermission("socketchat.spy")) {
-            //     throw new IllegalArgumentException("no.spy");
-            // }
-            spyList.add(username);
-            getClient().send("spying");
+            OfflinePlayer player = Bukkit.getOfflinePlayer(username);
+			if (!perms.playerHas(null, player, "socketchat.spy")) {
+				getClient().send("no.spy");
+			} else {
+			    spyList.add(username);
+			    getClient().send("spying");
+			}
         }
         
         for (WebSocket socket : SocketListener.activeSessions.keySet()) {
