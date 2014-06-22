@@ -116,6 +116,7 @@ public class SSOAuthorizeEvent extends iEvent {
                 	socket.send(String.format("online.list.webchat.join=%s", username));
                 } else {
                 	socket.send(String.format("player.webchat.join.spy=%s", username));
+                	socket.send(String.format("online.list.webchat.join.spy=%s", username));
                 }
             }
         }

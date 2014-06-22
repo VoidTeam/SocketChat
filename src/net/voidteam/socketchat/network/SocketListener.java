@@ -70,7 +70,7 @@ public class SocketListener extends WebSocketServer {
 	                conn.send(String.format("online.list.webchat.join=%s", username));
                 }
                 else {
-	                conn.send(String.format("online.list.webchat.spy=%s", username));
+	                conn.send(String.format("online.list.webchat.join.spy=%s", username));
                 }
             }
         }
@@ -94,6 +94,7 @@ public class SocketListener extends WebSocketServer {
                 	socket.send(String.format("online.list.webchat.leave=%s", username));
                 } else {
                 	socket.send(String.format("player.webchat.leave.spy=%s", username));
+                	socket.send(String.format("online.list.webchat.leave.spy=%s", username));
                 }
             }
         }
