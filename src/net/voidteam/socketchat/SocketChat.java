@@ -69,7 +69,7 @@ public class SocketChat extends JavaPlugin {
     	if (label.equals("wkickall")) {
             if (!sender.hasPermission("socketchat.kickall")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                return false;
+                return true;
             }
             SocketChat.kickall(StringUtils.join(args, " "));
             return true;
@@ -77,12 +77,17 @@ public class SocketChat extends JavaPlugin {
     	if (label.equals("wkick")) {
             if (!sender.hasPermission("socketchat.kick")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                return false;
+                return true;
             }
             if (args.length < 1) {
                 return false;
             }
-        	SocketChat.kick(args[0], StringUtils.join(args, " ", 1, args.length-1));
+            if (args.length == 1) {
+            	SocketChat.kick(args[0], "");
+            }
+            if (args.length > 1) {
+            	SocketChat.kick(args[0], StringUtils.join(args, " ", 1, args.length-1));
+            }
             return true;
     	}
     	
@@ -98,7 +103,7 @@ public class SocketChat extends JavaPlugin {
     		{
                 if (!sender.hasPermission("socketchat.kick")) {
                     sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                    return false;
+                    return true;
                 }
                 SocketChat.kick(args[1], StringUtils.join(args, " ", 2, args.length-1));
     		}
@@ -106,7 +111,7 @@ public class SocketChat extends JavaPlugin {
     		{
                 if (!sender.hasPermission("socketchat.kickall")) {
                     sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                    return false;
+                    return true;
                 }
                 SocketChat.kickall(StringUtils.join(args, " ", 1, args.length-1));
     		}
@@ -136,7 +141,7 @@ public class SocketChat extends JavaPlugin {
     		{
                 if (!sender.hasPermission("socketchat.kickall")) {
                     sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                    return false;
+                    return true;
                 }
                 SocketChat.kickall("");
     		}
@@ -144,7 +149,7 @@ public class SocketChat extends JavaPlugin {
     		{
                 if (!sender.hasPermission("vanish.fakeannounce")) {
                     sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                    return false;
+                    return true;
                 }
                 for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
                 	if (webSocket.isOpen()) {
@@ -156,7 +161,7 @@ public class SocketChat extends JavaPlugin {
     		{
                 if (!sender.hasPermission("vanish.fakeannounce")) {
                     sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                    return false;
+                    return true;
                 }
                 for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
                 	if (webSocket.isOpen()) {
