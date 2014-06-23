@@ -1,13 +1,13 @@
 package net.voidteam.socketchat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.voidteam.socketchat.events.MessageEvents;
 import net.voidteam.socketchat.network.SocketListener;
 import net.voidteam.socketchat.network.events.SSOAuthorizeEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -54,7 +54,7 @@ public class SocketChat extends JavaPlugin {
          * Create the SocketListener object
          * on port 1337. TODO - Add config option.
          */
-        listener = new SocketListener(7331);
+        listener = new SocketListener(1337);
         listener.start();
 
         /**
@@ -71,7 +71,7 @@ public class SocketChat extends JavaPlugin {
                 sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
                 return false;
             }
-            SocketChat.kickall();
+            SocketChat.kickall(StringUtils.join(args, " "));
             return true;
     	}   
     	if (label.equals("wkick")) {
@@ -82,7 +82,7 @@ public class SocketChat extends JavaPlugin {
             if (args.length < 1) {
                 return false;
             }
-        	SocketChat.kick(args[0]);
+        	SocketChat.kick(args[0], StringUtils.join(args, " ", 1, args.length-1));
             return true;
     	}
     	
@@ -92,7 +92,27 @@ public class SocketChat extends JavaPlugin {
             return true;
     	}
     	
-    	if (args.length == 1)
+    	if (args.length > 1)
+    	{
+    		if (args[0].equalsIgnoreCase("kick"))
+    		{
+                if (!sender.hasPermission("socketchat.kick")) {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
+                    return false;
+                }
+                SocketChat.kick(args[1], StringUtils.join(args, " ", 2, args.length-1));
+    		}
+    		if (args[0].equalsIgnoreCase("kickall"))
+    		{
+                if (!sender.hasPermission("socketchat.kickall")) {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
+                    return false;
+                }
+                SocketChat.kickall(StringUtils.join(args, " ", 1, args.length-1));
+    		}
+            return true;
+    	}
+    	else if (args.length > 0)
     	{
     		if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("who"))
     		{
@@ -118,7 +138,7 @@ public class SocketChat extends JavaPlugin {
                     sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
                     return false;
                 }
-                SocketChat.kickall();
+                SocketChat.kickall("");
     		}
     		if (args[0].equalsIgnoreCase("fj"))
     		{
@@ -146,24 +166,11 @@ public class SocketChat extends JavaPlugin {
     		}
             return true;
     	}
-    	
-    	if (args.length == 2)
-    	{
-    		if (args[0].equalsIgnoreCase("kick"))
-    		{
-                if (!sender.hasPermission("socketchat.kick")) {
-                    sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                    return false;
-                }
-                SocketChat.kick(args[1]);
-    		}
-            return true;
-    	}
 
         return false;
     }
 
-    public static boolean kick(String user) {
+    public static boolean kick(String user, String reason) {
         if (SocketListener.activeSessions.containsValue(user)) {
             String username = "";
 
@@ -172,13 +179,12 @@ public class SocketChat extends JavaPlugin {
 
                 if (username.equalsIgnoreCase(user)) {
                     if (socket.isOpen()) {
-                        socket.send("chat.kicked");
+        	            socket.send("chat.kicked=" + reason);
                         socket.close();
-                        Bukkit.getServer().broadcastMessage(ChatColor.GOLD + username + " was kicked from webchat.");
+                        Bukkit.getServer().broadcastMessage(ChatColor.DARK_AQUA + username + ChatColor.GRAY + " was kicked from webchat for " + reason);
                     }
 
                     SocketListener.activeSessions.remove(socket);
-                    return true;
                 } else {
                     if (socket.isOpen()) {
                         socket.send(String.format("player.leave.webchat=%s", username));
@@ -190,15 +196,14 @@ public class SocketChat extends JavaPlugin {
 		return false;
     }
 
-    public static boolean kickall() {
+    public static boolean kickall(String reason) {
     	for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
 	        if (webSocket.isOpen()) {
-	            webSocket.send("chat.kicked");
+	            webSocket.send("chat.kicked=" + reason);
 	            webSocket.close();
-	            return true;
 	        }
 	    }
-		return false;
+        return true;
     }
     
     public static String implode(List<String> list) {
