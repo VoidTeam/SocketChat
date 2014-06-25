@@ -4,10 +4,10 @@ import net.ess3.api.IEssentials;
 import net.ess3.api.IUser;
 import net.milkbowl.vault.permission.Permission;
 import net.minecraft.util.com.google.gson.internal.LinkedTreeMap;
+import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.libs.com.google.gson.Gson;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -19,7 +19,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Created by Robby Duke on 6/19/14.
@@ -51,7 +50,7 @@ public class SSOAuthorizeEvent extends iEvent {
     public static List<String> spyList = new ArrayList<String>();
     
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({ "rawtypes", "deprecation" })
 	@Override
     public void run() {
         String ticket = getPayload();
@@ -124,20 +123,7 @@ public class SSOAuthorizeEvent extends iEvent {
 			}
         }
         
-        for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-            if (socket.isOpen()) {
-                if (!spyList.contains(username)) {
-                	socket.send(String.format("player.webchat.join=%s", username));
-                	socket.send(String.format("online.list.webchat.join=%s", username));
-                } else {
-                	socket.send(String.format("player.webchat.join.spy=%s", username));
-                	socket.send(String.format("online.list.webchat.join.spy=%s", username));
-                }
-            }
-        }
-
-        if (!spyList.contains(username))
-	        Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " joined the webchat.");
+        JoinLeavePackets.joinWebChat(username);
     }
 
     public static String getText(String url) throws Exception {

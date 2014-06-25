@@ -86,7 +86,7 @@ public class SocketChat extends JavaPlugin {
             	SocketChat.kick(args[0], "");
             }
             if (args.length > 1) {
-            	SocketChat.kick(args[0], StringUtils.join(args, " ", 1, args.length-1));
+            	SocketChat.kick(args[0], StringUtils.join(args, " ", 1, args.length));
             }
             return true;
     	}
@@ -97,27 +97,7 @@ public class SocketChat extends JavaPlugin {
             return true;
     	}
     	
-    	if (args.length > 1)
-    	{
-    		if (args[0].equalsIgnoreCase("kick"))
-    		{
-                if (!sender.hasPermission("socketchat.kick")) {
-                    sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                    return true;
-                }
-                SocketChat.kick(args[1], StringUtils.join(args, " ", 2, args.length-1));
-    		}
-    		if (args[0].equalsIgnoreCase("kickall"))
-    		{
-                if (!sender.hasPermission("socketchat.kickall")) {
-                    sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
-                    return true;
-                }
-                SocketChat.kickall(StringUtils.join(args, " ", 1, args.length-1));
-    		}
-            return true;
-    	}
-    	else if (args.length > 0)
+    	if (args.length == 1)
     	{
     		if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("who"))
     		{
@@ -135,6 +115,8 @@ public class SocketChat extends JavaPlugin {
 	            if (!implode(onlineList).equals("")) {
 	            	sender.sendMessage(ChatColor.GRAY + "Webchat: " + ChatColor.translateAlternateColorCodes('&', implode(onlineList).substring(2)));
 	            	return true;
+	            } else {
+	            	return true;
 	            }
     		}
     		if (args[0].equalsIgnoreCase("kickall"))
@@ -144,6 +126,7 @@ public class SocketChat extends JavaPlugin {
                     return true;
                 }
                 SocketChat.kickall("");
+                return true;
     		}
     		if (args[0].equalsIgnoreCase("fj"))
     		{
@@ -151,11 +134,8 @@ public class SocketChat extends JavaPlugin {
                     sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
                     return true;
                 }
-                for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
-                	if (webSocket.isOpen()) {
-                		webSocket.send(String.format("player.join=%s", sender.getName()));
-                	}
-                }
+                JoinLeavePackets.joinServer(sender.getName());
+                return true;
     		}
     		if (args[0].equalsIgnoreCase("fq"))
     		{
@@ -163,11 +143,29 @@ public class SocketChat extends JavaPlugin {
                     sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
                     return true;
                 }
-                for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
-                	if (webSocket.isOpen()) {
-                		webSocket.send(String.format("player.leave=%s", sender.getName()));
-                	}
+                JoinLeavePackets.leaveServer(sender.getName());
+                return true;
+    		}
+            return false;
+    	}
+    	
+    	if (args.length > 1)
+    	{
+    		if (args[0].equalsIgnoreCase("kick"))
+    		{
+                if (!sender.hasPermission("socketchat.kick")) {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
+                    return true;
                 }
+                SocketChat.kick(args[1], StringUtils.join(args, " ", 2, args.length));
+    		}
+    		if (args[0].equalsIgnoreCase("kickall"))
+    		{
+                if (!sender.hasPermission("socketchat.kickall")) {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
+                    return true;
+                }
+                SocketChat.kickall(StringUtils.join(args, " ", 1, args.length));
     		}
             return true;
     	}
@@ -175,40 +173,43 @@ public class SocketChat extends JavaPlugin {
         return false;
     }
 
-    public static boolean kick(String user, String reason) {
+    public static void kick(String user, String reason) {
         if (SocketListener.activeSessions.containsValue(user)) {
             String username = "";
 
             for (WebSocket socket : SocketListener.activeSessions.keySet()) {
                 username = SocketListener.activeSessions.get(socket);
 
-                if (username.equalsIgnoreCase(user)) {
+                if (username.toLowerCase().equalsIgnoreCase(user)) {
                     if (socket.isOpen()) {
-        	            socket.send("chat.kicked=" + reason);
-                        socket.close();
-                        Bukkit.getServer().broadcastMessage(ChatColor.DARK_AQUA + username + ChatColor.GRAY + " was kicked from webchat for " + reason);
+                        if (!reason.equals("")) {
+	        	            socket.send("chat.kicked=" + reason);
+	                        Bukkit.getServer().broadcastMessage(ChatColor.DARK_AQUA + username + ChatColor.GRAY + " was kicked from webchat for " + reason);
+                        } else {
+	        	            socket.send("chat.kicked=No reason");
+	                        Bukkit.getServer().broadcastMessage(ChatColor.DARK_AQUA + username + ChatColor.GRAY + " was kicked from webchat");
+                        }
+	                    socket.close();
                     }
-
                     SocketListener.activeSessions.remove(socket);
-                } else {
-                    if (socket.isOpen()) {
-                        socket.send(String.format("player.leave.webchat=%s", username));
-                    }
                 }
             }
-            return true;
+
+            JoinLeavePackets.leaveWebChat(username);
         }
-		return false;
     }
 
-    public static boolean kickall(String reason) {
+    public static void kickall(String reason) {
     	for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
 	        if (webSocket.isOpen()) {
-	            webSocket.send("chat.kicked=" + reason);
+                if (reason != "") {
+                	webSocket.send("chat.kicked=" + reason);
+                } else {
+                	webSocket.send("chat.kicked=" + reason);
+                }
 	            webSocket.close();
 	        }
 	    }
-        return true;
     }
     
     public static String implode(List<String> list) {

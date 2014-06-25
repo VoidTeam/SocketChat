@@ -1,6 +1,7 @@
 package net.voidteam.socketchat.events;
 
 import net.ess3.api.IEssentials;
+import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.SocketChat;
 import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.Bukkit;
@@ -65,7 +66,6 @@ public class MessageEvents implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         final String username = event.getPlayer().getName();
-        boolean isHidden = false;
         
         /**
          * Send the player the message cache.
@@ -73,85 +73,19 @@ public class MessageEvents implements Listener {
         for (int i = cachedMessages.size() - 1; i >= 0; i--) {
             event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', cachedMessages.get(i)));
         }
-
-        /**
-         * If this player is not vanished,
-         * Broadcast the join to webchat.
-         */
         
-        try {
-        	isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username).isHidden();
-        }
-        catch (NullPointerException ex) {}
-        
-        if (!isHidden) {
-	        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
-	            @Override
-	            public void run() {
-	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-	                    if (socket.isOpen()) {
-	                        	socket.send(String.format("player.join=%s", username));
-	                        	socket.send(String.format("online.list.join=%s", username));
-	                    }
-	                }
-	            }
-	        });
-        }
-        else
-        {
-	        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
-	            @Override
-	            public void run() {
-	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-	                    if (socket.isOpen()) {
-	                        	socket.send(String.format("player.join.vanished=%s", username));
-	                    }
-	                }
-	            }
-	        });
-        }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(SocketChat.getPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                JoinLeavePackets.joinServer(username);
+            }
+        }, 20);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onLeave(PlayerQuitEvent event) {
         final String username = event.getPlayer().getName();
-        boolean isHidden = false;
-
-        /**
-         * If this player is not vanished,
-         * Broadcast the leave to webchat.
-         */
         
-        try {
-        	isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username).isHidden(); 
-        }
-        catch (NullPointerException ex) {}
-
-        if (!isHidden) {
-	        Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
-	            @Override
-	            public void run() {
-	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-	                    if (socket.isOpen()) {
-	                        	socket.send(String.format("player.leave=%s", username));
-	                        	socket.send(String.format("online.list.leave=%s", username));
-	                    }
-	                }
-	            }
-	        });
-        }
-        else
-        {
-        	Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
-	            @Override
-	            public void run() {
-	                for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-	                    if (socket.isOpen()) {
-	                        	socket.send(String.format("player.leave.vanished=%s", username));
-	                    }
-	                }
-	            }
-	        });
-        }
+        JoinLeavePackets.leaveServer(username);
     }
 }

@@ -2,13 +2,13 @@ package net.voidteam.socketchat.network;
 
 
 import net.ess3.api.IEssentials;
+import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.events.MessageEvents;
 import net.voidteam.socketchat.network.events.ChatSendEvent;
 import net.voidteam.socketchat.network.events.SSOAuthorizeEvent;
 import net.voidteam.socketchat.network.events.iEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -42,30 +42,43 @@ public class SocketListener extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         Utilities.debug(String.format("New Connection [%s]", conn.getRemoteSocketAddress()));
-
-        /**
-         * Send the player the message cache.
-         */
         if (conn.isOpen()) {
+
+            /**
+             * Send the player the message cache.
+             */
             for (int i = MessageEvents.cachedMessages.size() - 1; i >= 0; i--) {
                 conn.send(String.format("chat.history=%s", MessageEvents.cachedMessages.get(i).replaceAll("§", "&")));
             }
 
+            /**
+             * Send the player the server online list.
+             */
             for (Player player : Bukkit.getOnlinePlayers()) {
-                boolean isHidden = false;
-                String username = player.getName();
-                
-                try {
-                	isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(player.getName()).isHidden();
-                }
-                catch (NullPointerException ex) {}
+            	String username = player.getName();
+            	boolean isHidden = false;
+            	String displayName = username;
             	
-                if (isHidden == false)
-                	conn.send(String.format("online.list.join=%s", username));
+            	try {
+            		isHidden = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username).isHidden();
+            		displayName = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(username).getDisplayName().replaceAll("§", "&");
+                }
+                catch (NullPointerException ex) {
+                	isHidden = false;
+                	displayName = username;
+                }
+            	
+                if (!isHidden) {
+                	conn.send(String.format("online.list.join=%s", displayName));
+                } else {
+                	conn.send(String.format("online.list.join.vanished=%s", displayName));
+                }
             }
 
+            /**
+             * Send the player the webchat online list.
+             */
             for (String username : activeSessions.values()) {
-                
                 if (!SSOAuthorizeEvent.spyList.contains(username)) {
 	                conn.send(String.format("online.list.webchat.join=%s", username));
                 }
@@ -80,30 +93,13 @@ public class SocketListener extends WebSocketServer {
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         Utilities.debug(String.format("Closed Connection [%s] [code=%d] [reason=%s]", conn.getRemoteSocketAddress(), code, reason));
 
-
         if (!activeSessions.containsKey(conn)) {
             return;
         }
 
         final String username = activeSessions.get(conn);
         
-        for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-            if (socket.isOpen()) {
-                if (!SSOAuthorizeEvent.spyList.contains(username)) {
-                	socket.send(String.format("player.webchat.leave=%s", username));
-                	socket.send(String.format("online.list.webchat.leave=%s", username));
-                } else {
-                	socket.send(String.format("player.webchat.leave.spy=%s", username));
-                	socket.send(String.format("online.list.webchat.leave.spy=%s", username));
-                }
-            }
-        }
-
-        if (!SSOAuthorizeEvent.spyList.contains(username)) {
-        	Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + username + " left the webchat.");
-        } else {
-    		SSOAuthorizeEvent.spyList.remove(username);
-        }
+        JoinLeavePackets.leaveWebChat(username);
 
         if (activeSessions.containsKey(conn))
             activeSessions.remove(conn);
