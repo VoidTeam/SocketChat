@@ -3,8 +3,8 @@ package net.voidteam.socketchat;
 import java.io.File;
 import java.util.UUID;
 
-import net.minecraft.server.v1_7_R3.*;
-import org.bukkit.craftbukkit.v1_7_R3.*;
+import net.minecraft.server.v1_7_R4.*;
+import org.bukkit.craftbukkit.v1_7_R4.*;
 import net.minecraft.util.com.mojang.authlib.GameProfile;
 
 import org.bukkit.Bukkit;
