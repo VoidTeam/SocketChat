@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.java_websocket.WebSocket;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ import java.util.List;
  * @time 12:38 PM
  */
 public class MessageEvents implements Listener {
-    public static List<String> cachedMessages = new ArrayList<String>();
+	public static List<String> cachedMessages = Collections.synchronizedList(new ArrayList<String>());
 
     @EventHandler
     public void onMessage(AsyncPlayerChatEvent event) {

@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.java_websocket.WebSocket;
 
-import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -65,7 +64,7 @@ public class ChatSendEvent extends iEvent {
 
             String message = getPayload();
 
-            AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, player, message, new HashSet<Player>(Arrays.asList(Bukkit.getServer().getOnlinePlayers())));
+            AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, player, message, new HashSet<Player>(Bukkit.getServer().getOnlinePlayers()));
             Bukkit.getServer().getPluginManager().callEvent(event);
 
             if (event.isCancelled()) {
