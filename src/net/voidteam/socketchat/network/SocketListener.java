@@ -16,7 +16,9 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Robby Duke on 6/19/14.
@@ -27,7 +29,7 @@ import java.util.HashMap;
  */
 public class SocketListener extends WebSocketServer {
     private final HashMap<String, Class<? extends iEvent>> validEvents = new HashMap<String, Class<? extends iEvent>>();
-    public static final HashMap<WebSocket, String> activeSessions = new HashMap<WebSocket, String>();
+    public static final Map<WebSocket, String> activeSessions = Collections.synchronizedMap(new HashMap<WebSocket, String>());
 
     public SocketListener(Integer port) {
         super(new InetSocketAddress(port));

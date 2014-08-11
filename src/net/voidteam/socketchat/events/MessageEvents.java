@@ -4,14 +4,19 @@ import net.ess3.api.IEssentials;
 import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.SocketChat;
 import net.voidteam.socketchat.network.SocketListener;
+
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 import org.java_websocket.WebSocket;
 
 import java.util.ArrayList;
@@ -63,17 +68,82 @@ public class MessageEvents implements Listener {
             });
         }
     }
+    
+    @EventHandler
+    public void onPlayerBroadcastCommand(PlayerCommandPreprocessEvent e) {
+    	String print = null;
+    	String command = e.getMessage();
+    	String[] commands = command.split(" ");
+    	
+    	if (commands[0].equalsIgnoreCase("/say"))
+    	{
+    		commands[0] = "";
+    		String message = StringUtils.join(commands, " ");
+    		
+    		print = ChatColor.translateAlternateColorCodes('&', "&d[Server]") + message;
+    	}
+    	else if (commands[0].equalsIgnoreCase("/broadcast") || commands[0].equalsIgnoreCase("bc"))
+    	{
+    		commands[0] = "";
+    		String message = StringUtils.join(commands, " ");
+    		
+    		print = ChatColor.translateAlternateColorCodes('&', "&7[&4Broadcast&7]&a" + message);
+    	}
+    	else if (commands[0].equalsIgnoreCase("/slap"))
+    	{
+    		Player player = SocketChat.findPlayer(commands[1]);
+    		
+    		print = ChatColor.translateAlternateColorCodes('&', e.getPlayer().getDisplayName() + " &eslapped " + player.getDisplayName());
+    	}
+    	
+        if (print != null) {
+	        for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+	            if (socket.isOpen()) {
+	            	socket.send(String.format("print.message=%s", print.replaceAll("§", "&")));
+	            }
+	        }
+        }
+    }
+    
+    @EventHandler
+    public void onConsoleBroadcastCommand(ServerCommandEvent e) {
+    	String print = null;
+    	String command = e.getCommand();
+    	String[] commands = command.split(" ");
+    	
+    	if (commands[0].equalsIgnoreCase("say"))
+    	{
+    		commands[0] = "";
+    		String message = StringUtils.join(commands, " ");
+    		
+    		print = ChatColor.translateAlternateColorCodes('&', "&d[Server]") + message;
+    	}
+    	else if (commands[0].equalsIgnoreCase("broadcast") || commands[0].equalsIgnoreCase("bc"))
+    	{
+    		commands[0] = "";
+    		String message = StringUtils.join(commands, " ");
+    		
+    		print = ChatColor.translateAlternateColorCodes('&', "&7[&4Broadcast&7]&a" + message);
+    	}
+    	else if (commands[0].equalsIgnoreCase("slap"))
+    	{
+    		Player player = SocketChat.findPlayer(commands[1]);
+    		
+    		print = ChatColor.translateAlternateColorCodes('&', "&6Console &eslapped " + player.getDisplayName());
+    	}
+    	
+        if (print != null) {
+	        for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+	            if (socket.isOpen()) {
+	            	socket.send(String.format("print.message=%s", print.replaceAll("§", "&")));
+	            }
+	        }
+        }
+    }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         final String username = event.getPlayer().getName();
-        
-        /**
-         * Send the player the message cache.
-         */
-        for (int i = cachedMessages.size() - 1; i >= 0; i--) {
-            event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', cachedMessages.get(i)));
-        }
         
         Bukkit.getScheduler().scheduleSyncDelayedTask(SocketChat.getPlugin(), new Runnable() {
             @Override
