@@ -2,6 +2,7 @@ package net.voidteam.socketchat.network.events;
 
 import net.ess3.api.IEssentials;
 import net.voidteam.socketchat.OfflinePlayerLoader;
+import net.voidteam.socketchat.SocketChat;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.BanList;
@@ -40,6 +41,7 @@ public class ChatSendEvent extends iEvent {
             throw new IllegalArgumentException("message.empty");
 
         String username = SocketListener.activeSessions.get(getClient());
+        final String message = getPayload();
 
         boolean isMuted = false;
         try {
@@ -56,34 +58,54 @@ public class ChatSendEvent extends iEvent {
             throw new IllegalArgumentException("player.banned");
         }
 
-
-        try {
-			Player player = Bukkit.getServer().getPlayerExact(username);
-			if(player == null)
-            	player = OfflinePlayerLoader.load(username);
-
-            String message = getPayload();
-
-            AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, player, message, new HashSet<Player>(Bukkit.getServer().getOnlinePlayers()));
-            Bukkit.getServer().getPluginManager().callEvent(event);
-
-            if (event.isCancelled()) {
-                Utilities.severe(String.format("Event cancelled while sending! [%s] [msg=%s]", getClient().getRemoteSocketAddress(), getPayload()));
-                throw new IllegalArgumentException("message.cancelled");
-            }
-
-            message = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
-
-            // Send to players on server
-            for (Player recipient : event.getRecipients())
-                recipient.sendMessage(message);
+        if (Bukkit.getServer().getOnlinePlayers().size() > 0)
+        {
+	        try {
+				Player player = Bukkit.getServer().getPlayerExact(username);
+				if(player == null)
+	            	player = OfflinePlayerLoader.load(username);
+	
+	            AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, player, message, new HashSet<Player>(Bukkit.getServer().getOnlinePlayers()));
+	            Bukkit.getServer().getPluginManager().callEvent(event);
+	
+	            if (event.isCancelled()) {
+	                Utilities.severe(String.format("Event cancelled while sending! [%s] [msg=%s]", getClient().getRemoteSocketAddress(), getPayload()));
+	                throw new IllegalArgumentException("message.cancelled");
+	            }
+	
+	            String formattedMessage = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
+	
+	            // Send to players on server
+	            for (Player recipient : event.getRecipients())
+	                recipient.sendMessage(formattedMessage);
+	            
+	            // Show in Console
+	            Bukkit.getServer().getConsoleSender().sendMessage(formattedMessage);
+	            
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	            throw new IllegalArgumentException("message.cancelled");
+	        }
+        }
+        else
+        {
+	        /**
+	         * Broadcast the message to the WebChat users if no one is online
+	         */
+        	
+            final String formattedMessage = "&7[Webchat] &e" + username + ": &f" + message.replaceAll("\\[[15]-[14][0]?\\]<.+> ", "");
             
-            // Show in Console
-            Bukkit.getServer().getConsoleSender().sendMessage(message);
             
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            throw new IllegalArgumentException("message.cancelled");
+            Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
+                @Override
+                public void run() {
+                    for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+                        if (socket.isOpen()) {
+                            socket.send(String.format("chat.receive=%s", formattedMessage.replaceAll("§", "&")));
+                        }
+                    }
+                }
+            });
         }
     }
 }
