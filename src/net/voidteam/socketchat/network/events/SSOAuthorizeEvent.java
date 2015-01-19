@@ -3,7 +3,7 @@ package net.voidteam.socketchat.network.events;
 import net.ess3.api.IEssentials;
 import net.ess3.api.IUser;
 import net.milkbowl.vault.permission.Permission;
-import net.minecraft.util.com.google.gson.internal.LinkedTreeMap;
+import org.bukkit.craftbukkit.libs.com.google.gson.internal.LinkedTreeMap;
 import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;

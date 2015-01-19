@@ -44,7 +44,7 @@ public class SocketListener extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         Utilities.debug(String.format("New Connection [%s]", conn.getRemoteSocketAddress()));
-        if (conn.isOpen()) {
+        if (conn.isOpen()) {        	
 
             /**
              * Send the player the message cache.

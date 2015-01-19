@@ -1,5 +1,5 @@
 name: 'SocketChat'
-version: 0.0.2
+version: 0.0.3
 description: 'Server -> Client WebSocket bridge for Bukkit.'
 
 author: NoEff3x

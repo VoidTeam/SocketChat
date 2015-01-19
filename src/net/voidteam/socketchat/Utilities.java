@@ -11,7 +11,7 @@ import java.util.logging.Level;
  */
 public class Utilities {
     private static final boolean debugMode = false;
-    private static final String prefix = "[SocketChat] ";
+    private static final String prefix = "";
 
     /**
      * Display any debuggable information to the console.
@@ -35,5 +35,8 @@ public class Utilities {
      */
     public static void severe(String severeMessage) {
         SocketChat.getPlugin().getLogger().log(Level.SEVERE, prefix.concat(severeMessage));
+    }
+    public static void warning(String severeMessage) {
+        SocketChat.getPlugin().getLogger().log(Level.WARNING, prefix.concat(severeMessage));
     }
 }
