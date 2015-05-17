@@ -3,13 +3,14 @@ package net.voidteam.socketchat.network.events;
 import net.ess3.api.IEssentials;
 import net.ess3.api.IUser;
 import net.milkbowl.vault.permission.Permission;
-import org.bukkit.craftbukkit.libs.com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.internal.LinkedTreeMap;
+import net.voidteam.socketchat.SocketChat;
 import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.craftbukkit.libs.com.google.gson.Gson;
+import com.google.gson.Gson;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.java_websocket.WebSocket;
 
@@ -36,7 +37,7 @@ public class SSOAuthorizeEvent extends iEvent {
 
 	Permission perms;
 	
-    public SSOAuthorizeEvent(WebSocket client, String payload) {
+    public SSOAuthorizeEvent(SocketChat plugin, WebSocket client, String payload) {
         super(client, payload);
 
     	if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
@@ -71,11 +72,8 @@ public class SSOAuthorizeEvent extends iEvent {
 
         String json = null;
 
-        /**
-         * TODO - Add URL to config
-         */
         try {
-            json = getText("http://voidteam.net/minecraft/api/check_webchat_ticket/".concat(ticket));
+            json = getText(SocketChat.apiURL.concat(ticket));
         } catch (Exception ex) {
             Utilities.severe("Couldn't fetch JSON!");
             ex.printStackTrace();

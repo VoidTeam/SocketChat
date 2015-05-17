@@ -1,0 +1,18 @@
+#
+#	SocketChat Configuration File
+#	=====================================
+#
+#	Plugin by NoEff3x, jacklink01, and Colbydude.
+# 	Like this plugin? Donate! http://voidteam.net/donate :)
+#
+#	Need a new config file? Just delete this one and a new one will be created.
+#
+
+# Port for the socket to listen on.
+socketPort: 20061
+
+# API url to check the sso tickets against.
+apiURL: http://voidteam.net/minecraft/api/
+
+# Public SSO key, for read-only instances.
+publicKey: publicSSO
