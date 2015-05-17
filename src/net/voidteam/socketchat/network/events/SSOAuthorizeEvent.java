@@ -37,7 +37,7 @@ public class SSOAuthorizeEvent extends iEvent {
 
 	Permission perms;
 	
-    public SSOAuthorizeEvent(SocketChat plugin, WebSocket client, String payload) {
+    public SSOAuthorizeEvent(WebSocket client, String payload) {
         super(client, payload);
 
     	if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
