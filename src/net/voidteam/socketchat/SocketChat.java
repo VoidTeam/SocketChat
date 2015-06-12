@@ -301,4 +301,11 @@ public class SocketChat extends JavaPlugin {
     public static Plugin getPlugin() {
         return Bukkit.getPluginManager().getPlugin("SocketChat");
     }
+
+    /**
+     * Easy way to return a hashmap of the current webchat users.
+     */
+    public Collection<String> getWebChatters() {
+        return this.listener.activeSessions.values();
+    }
 }
