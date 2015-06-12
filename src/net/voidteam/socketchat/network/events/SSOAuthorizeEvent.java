@@ -3,13 +3,13 @@ package net.voidteam.socketchat.network.events;
 import net.ess3.api.IEssentials;
 import net.ess3.api.IUser;
 import net.milkbowl.vault.permission.Permission;
-import org.bukkit.craftbukkit.libs.com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.internal.LinkedTreeMap;
 import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.craftbukkit.libs.com.google.gson.Gson;
+import com.google.gson.Gson;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.java_websocket.WebSocket;
 
