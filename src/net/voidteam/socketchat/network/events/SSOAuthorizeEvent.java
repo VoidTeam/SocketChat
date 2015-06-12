@@ -4,6 +4,10 @@ import net.ess3.api.IEssentials;
 import net.ess3.api.IUser;
 import net.milkbowl.vault.permission.Permission;
 import com.google.gson.internal.LinkedTreeMap;
+<<<<<<< HEAD
+=======
+import net.voidteam.socketchat.SocketChat;
+>>>>>>> 8fae6c4b13121fd4d6dfd1894c22b61d606c561d
 import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
@@ -71,11 +75,8 @@ public class SSOAuthorizeEvent extends iEvent {
 
         String json = null;
 
-        /**
-         * TODO - Add URL to config
-         */
         try {
-            json = getText("http://voidteam.net/minecraft/api/check_webchat_ticket/".concat(ticket));
+            json = getText(SocketChat.apiURL.concat(ticket));
         } catch (Exception ex) {
             Utilities.severe("Couldn't fetch JSON!");
             ex.printStackTrace();

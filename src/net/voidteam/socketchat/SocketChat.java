@@ -1,5 +1,6 @@
 package net.voidteam.socketchat;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,6 +10,7 @@ import net.voidteam.socketchat.network.SocketListener;
 import net.voidteam.socketchat.network.events.SSOAuthorizeEvent;
 
 import org.apache.commons.lang.StringUtils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,6 +18,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import org.java_websocket.WebSocket;
 
 /**
@@ -28,6 +31,9 @@ import org.java_websocket.WebSocket;
 
 public class SocketChat extends JavaPlugin {
     private SocketListener listener = null;
+    public static int socketPort = 0;
+    public static String apiURL = "";
+    public static String publicKey = "";
 
     @Override
     public void onDisable() {
@@ -52,11 +58,18 @@ public class SocketChat extends JavaPlugin {
     public void onEnable() {
         super.onEnable();
 
+        // Create default config if it does not exist yet.
+        if (!new File(getDataFolder(), "config.yml").exists()) {
+            saveDefaultConfig();
+        }
+
+        // Load configuration.
+        reloadConfiguration();
+
         /**
-         * Create the SocketListener object
-         * on port 1337. TODO - Add config option.
+         * Create the SocketListener object.
          */
-        listener = new SocketListener(1337);
+        listener = new SocketListener(socketPort);
         listener.start();
 
         /**
@@ -64,6 +77,19 @@ public class SocketChat extends JavaPlugin {
          * so that the WebChat can receive messages.
          */
         Bukkit.getPluginManager().registerEvents(new MessageEvents(), this);
+    }
+
+    @SuppressWarnings("deprecation")
+    public void reloadConfiguration() {
+        if (!new File(getDataFolder(), "config.yml").exists()) {
+            saveDefaultConfig();
+        }
+
+        reloadConfig();
+
+        socketPort = getConfig().getInt("socketPort");
+        apiURL = getConfig().getString("apiURL");
+        publicKey = getConfig().getString("publicKey");
     }
 
     @Override
@@ -75,7 +101,7 @@ public class SocketChat extends JavaPlugin {
             }
             SocketChat.kickall(StringUtils.join(args, " "));
             return true;
-    	}   
+    	}
     	if (label.equals("wkick")) {
             if (!sender.hasPermission("socketchat.kick")) {
                 sender.sendMessage(ChatColor.RED + "You do not have permission for this command.");
@@ -96,19 +122,19 @@ public class SocketChat extends JavaPlugin {
             }
             return true;
     	}
-    	
+
     	if (args.length == 0)
     	{
             sender.sendMessage(ChatColor.AQUA + "[SocketChat] Made by Robby Duke (a.k.a NoEff3x).");
             return true;
     	}
-    	
+
     	if (args.length == 1)
     	{
     		if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("who"))
     		{
     		    List<String> onlineList = new ArrayList<String>();
-    		    
+
 	            for (String username : SocketListener.activeSessions.values()) {
 	                if (SSOAuthorizeEvent.spyList.contains(username)) {
 	                	if (sender.hasPermission("socketchat.spy")) {
@@ -154,7 +180,7 @@ public class SocketChat extends JavaPlugin {
     		}
             return false;
     	}
-    	
+
     	if (args.length > 1)
     	{
     		if (args[0].equalsIgnoreCase("kick"))
@@ -183,7 +209,7 @@ public class SocketChat extends JavaPlugin {
 
     public static boolean kick(String user, String reason) {
             String username = "";
-            
+
             Integer x = 0;
             for (WebSocket socket : SocketListener.activeSessions.keySet()) {
                 username = SocketListener.activeSessions.get(socket);
@@ -199,14 +225,14 @@ public class SocketChat extends JavaPlugin {
                         }
 	                    socket.close();
                     }
-                    
+
                     SocketListener.activeSessions.remove(socket);
                 	JoinLeavePackets.leaveWebChat(username);
-                	
+
                     x++;
                 }
             }
-            
+
             if (x > 0) {
             	return true;
             } else {
@@ -226,9 +252,9 @@ public class SocketChat extends JavaPlugin {
 	        }
 	    }
     }
-    
+
     public static String implode(List<String> list) {
-    	
+
         // If this list is empty, it only contained blank values
         if( list.isEmpty()) {
             return "";
@@ -236,7 +262,7 @@ public class SocketChat extends JavaPlugin {
 
         // Format the ArrayList as a string, similar to implode
         StringBuilder builder = new StringBuilder();
-        
+
         for( String s : list) {
             builder.append( ", ");
             builder.append( s);
@@ -244,7 +270,7 @@ public class SocketChat extends JavaPlugin {
 
         return builder.toString();
     }
-    
+
     public static Player findPlayer(String playerName) {
         Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
         Player playerFound = null;
