@@ -39,10 +39,7 @@ public class SocketChat extends JavaPlugin {
     public void onDisable() {
         super.onDisable();
 
-        for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
-            if (webSocket.isOpen())
-                webSocket.close();
-        }
+        SocketChat.kickall("Server is restarting...");
 
         SocketListener.activeSessions.clear();
 
@@ -79,7 +76,6 @@ public class SocketChat extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new MessageEvents(), this);
     }
 
-    @SuppressWarnings("deprecation")
     public void reloadConfiguration() {
         if (!new File(getDataFolder(), "config.yml").exists()) {
             saveDefaultConfig();
@@ -305,7 +301,8 @@ public class SocketChat extends JavaPlugin {
     /**
      * Easy way to return a hashmap of the current webchat users.
      */
-    public Collection<String> getWebChatters() {
+    @SuppressWarnings("static-access")
+	public Collection<String> getWebChatters() {
         return this.listener.activeSessions.values();
     }
 }
