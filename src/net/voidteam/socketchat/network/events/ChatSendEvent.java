@@ -74,7 +74,21 @@ public class ChatSendEvent extends iEvent {
 	            }
 	
 	            String formattedMessage = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
-	
+	            
+	            //Find URLs and fix them
+	            if  (message.contains("http://") || message.contains("https://"))
+	    		{
+		            String[] words = message.split(" ");
+					for (int x = 0; x < words.length; x++)
+					{
+						if (words[x].contains(".") && (words[x].startsWith("http://") || words[x].startsWith("https://"))) //Ensure that the link is a link
+						{
+							String linkmessage = words[x];
+							formattedMessage = formattedMessage.replace(linkmessage.replace("."," "), linkmessage);
+						}
+					}
+	    		}
+	            
 	            // Send to players on server
 	            for (Player recipient : event.getRecipients())
 	                recipient.sendMessage(formattedMessage);
@@ -93,7 +107,7 @@ public class ChatSendEvent extends iEvent {
 	         * Broadcast the message to the WebChat users if no one is online
 	         */
         	
-            final String formattedMessage = "&7[Webchat] &e" + username + ": &f" + message.replaceAll("\\[[15]-[14][0]?\\]<.+> ", "");
+            final String formattedMessage = "&7[Webchat] &e" + username + "&7: &f" + message.replaceAll("\\[[15]-[14][0]?\\]<.+> ", "");
             
             
             Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
