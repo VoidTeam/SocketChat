@@ -37,9 +37,9 @@ public class SocketChat extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        super.onDisable();
-
         SocketChat.kickall("Server is restarting...");
+        
+        super.onDisable();
 
         SocketListener.activeSessions.clear();
 
