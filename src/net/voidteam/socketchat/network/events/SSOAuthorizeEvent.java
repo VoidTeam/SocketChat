@@ -4,10 +4,7 @@ import net.ess3.api.IEssentials;
 import net.ess3.api.IUser;
 import net.milkbowl.vault.permission.Permission;
 import com.google.gson.internal.LinkedTreeMap;
-<<<<<<< HEAD
-=======
 import net.voidteam.socketchat.SocketChat;
->>>>>>> 8fae6c4b13121fd4d6dfd1894c22b61d606c561d
 import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.network.SocketListener;
