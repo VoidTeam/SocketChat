@@ -61,8 +61,6 @@ public class Draft_10 extends Draft {
 	}
 
 	private ByteBuffer incompleteframe;
-	//private Framedata fragmentedframe = null;
-
 	private final Random reuseableRandom = new Random();
 
 	@Override
@@ -266,8 +264,6 @@ public class Draft_10 extends Draft {
 					incompleteframe = null;
 					break; // go on with the normal frame receival
 				} catch ( IncompleteException e ) {
-					// extending as much as suggested
-					//int oldsize = incompleteframe.limit();
 					ByteBuffer extendedframe = ByteBuffer.allocate( checkAlloc( e.getPreferedSize() ) );
 					assert ( extendedframe.limit() > incompleteframe.limit() );
 					incompleteframe.rewind();
