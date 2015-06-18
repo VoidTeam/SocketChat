@@ -88,61 +88,26 @@ public class SocketChat extends JavaPlugin {
 		KeyStore ks = null;
 		try {
 			ks = KeyStore.getInstance(STORETYPE);
-		} catch (KeyStoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		File kf = new File(KEYSTORE);
-		try {
+			File kf = new File(KEYSTORE);
 			ks.load( new FileInputStream(kf), STOREPASSWORD.toCharArray());
-		} catch (NoSuchAlgorithmException | CertificateException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		KeyManagerFactory kmf = null;
-		try {
+			
+			KeyManagerFactory kmf = null;
 			kmf = KeyManagerFactory.getInstance("SunX509");
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
 			kmf.init(ks, KEYPASSWORD.toCharArray());
-		} catch (UnrecoverableKeyException | KeyStoreException
-				| NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		TrustManagerFactory tmf = null;
-		try {
+			
+			TrustManagerFactory tmf = null;
 			tmf = TrustManagerFactory.getInstance("SunX509");
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
 			tmf.init(ks);
-		} catch (KeyStoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		SSLContext sslContext = null;
-		try {
+			
+			SSLContext sslContext = null;
 			sslContext = SSLContext.getInstance("TLS");
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
 			sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-		} catch (KeyManagementException e) {
+			
+			listener.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		listener.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
         
         listener.start();
 
