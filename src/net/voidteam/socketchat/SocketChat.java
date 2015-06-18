@@ -1,16 +1,27 @@
 package net.voidteam.socketchat;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import net.voidteam.socketchat.events.MessageEvents;
 import net.voidteam.socketchat.network.SocketListener;
 import net.voidteam.socketchat.network.events.SSOAuthorizeEvent;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -18,8 +29,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import org.java_websocket.WebSocket;
+import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
 /**
  * Created by Robby Duke on 6/19/14.
@@ -62,11 +73,77 @@ public class SocketChat extends JavaPlugin {
 
         // Load configuration.
         reloadConfiguration();
-
+        
         /**
          * Create the SocketListener object.
          */
         listener = new SocketListener(socketPort);
+        
+        // load up the key store
+		String STORETYPE = "JKS";
+		String KEYSTORE = "plugins/SocketChat/keystore.jks";
+		String STOREPASSWORD = "socketchat";
+		String KEYPASSWORD = "socketchat";
+		
+		KeyStore ks = null;
+		try {
+			ks = KeyStore.getInstance(STORETYPE);
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		File kf = new File(KEYSTORE);
+		try {
+			ks.load( new FileInputStream(kf), STOREPASSWORD.toCharArray());
+		} catch (NoSuchAlgorithmException | CertificateException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		KeyManagerFactory kmf = null;
+		try {
+			kmf = KeyManagerFactory.getInstance("SunX509");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			kmf.init(ks, KEYPASSWORD.toCharArray());
+		} catch (UnrecoverableKeyException | KeyStoreException
+				| NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		TrustManagerFactory tmf = null;
+		try {
+			tmf = TrustManagerFactory.getInstance("SunX509");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			tmf.init(ks);
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		SSLContext sslContext = null;
+		try {
+			sslContext = SSLContext.getInstance("TLS");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+		} catch (KeyManagementException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		listener.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
+        
         listener.start();
 
         /**
