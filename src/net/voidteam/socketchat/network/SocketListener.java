@@ -5,9 +5,7 @@ import net.ess3.api.IEssentials;
 import net.voidteam.socketchat.JoinLeavePackets;
 import net.voidteam.socketchat.Utilities;
 import net.voidteam.socketchat.events.MessageEvents;
-import net.voidteam.socketchat.network.events.ChatSendEvent;
-import net.voidteam.socketchat.network.events.SSOAuthorizeEvent;
-import net.voidteam.socketchat.network.events.iEvent;
+import net.voidteam.socketchat.network.events.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.java_websocket.WebSocket;
@@ -39,6 +37,11 @@ public class SocketListener extends WebSocketServer {
          */
         validEvents.put("sso.authorize", SSOAuthorizeEvent.class);
         validEvents.put("chat.send", ChatSendEvent.class);
+        validEvents.put("chat.afk", ChatAFKEvent.class);
+        validEvents.put("chat.unafk", ChatUNAFKEvent.class);
+        validEvents.put("chat.blur", ChatBlurEvent.class);
+        validEvents.put("chat.focus", ChatFocusEvent.class);
+
     }
 
     @Override
