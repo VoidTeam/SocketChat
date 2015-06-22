@@ -1,21 +1,9 @@
 package net.voidteam.socketchat;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 
 import net.voidteam.socketchat.events.MessageEvents;
 import net.voidteam.socketchat.network.SocketListener;
@@ -30,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.java_websocket.WebSocket;
-import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
 /**
  * Created by Robby Duke on 6/19/14.
@@ -78,7 +65,8 @@ public class SocketChat extends JavaPlugin {
          * Create the SocketListener object.
          */
         listener = new SocketListener(socketPort);
-        
+
+        /** SSL REMOVED
         // load up the key store
 		String STORETYPE = "JKS";
 		String KEYSTORE = "plugins/SocketChat/keystore.jks";
@@ -105,9 +93,9 @@ public class SocketChat extends JavaPlugin {
 			
 			listener.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        **/
         
         listener.start();
 
