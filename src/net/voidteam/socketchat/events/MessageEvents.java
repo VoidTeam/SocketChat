@@ -39,51 +39,45 @@ public class MessageEvents implements Listener {
     @EventHandler
     public void onMessage(AsyncPlayerChatEvent event) {
         final String formattedMessage = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
-
-        //if (concurrentPrevention == false)
-        //{
-        //	concurrentPrevention = true;
-	        try
-	        {
-		        /**
-		         * Add the message to the message cache
-		         */
-		        cachedMessages.add(0, formattedMessage);
-		
-		        /**
-		         * If the size of the arraylist meets or exceeds 50 messages,
-		         * sublist it so we don't rape the webchat use with messages.
-		         */
-		        if (cachedMessages.size() >= 50)
-		            cachedMessages = cachedMessages.subList(0, 49);
-	        }
-	        catch(ConcurrentModificationException e)
-	        {
-	            Utilities.warning("Concurrent chat messages received. Resetting cache...");
-	            cachedMessages = Collections.synchronizedList(new ArrayList<String>());
-	        }
+        
+        try
+        {
+	        /**
+	         * Add the message to the message cache
+	         */
+	        cachedMessages.add(0, formattedMessage);
 	
 	        /**
-	         * Broadcast the message to the WebChat users.
+	         * If the size of the arraylist meets or exceeds 50 messages,
+	         * sublist it so we don't rape the webchat use with messages.
 	         */
-	
-	        boolean isMuted = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(event.getPlayer().getName()).isMuted();
-	
-	        if (!isMuted) {
-	            Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
-	                @Override
-	                public void run() {
-	                    for (WebSocket socket : SocketListener.activeSessions.keySet()) {
-	                        if (socket.isOpen()) {
-	                            socket.send(String.format("chat.receive=%s", formattedMessage.replaceAll("§", "&")));
-	                        }
-	                    }
-	                }
-	            });
-	        }
-	        
-	    //	concurrentPrevention = false;
-        //}
+	        if (cachedMessages.size() >= 50)
+	            cachedMessages = cachedMessages.subList(0, 49);
+        }
+        catch(ConcurrentModificationException e)
+        {
+            Utilities.warning("Concurrent chat messages received. Resetting cache...");
+            cachedMessages = Collections.synchronizedList(new ArrayList<String>());
+        }
+
+        /**
+         * Broadcast the message to the WebChat users.
+         */
+
+        boolean isMuted = ((IEssentials) Bukkit.getPluginManager().getPlugin("Essentials")).getUser(event.getPlayer().getName()).isMuted();
+
+        if (!isMuted) {
+            Bukkit.getScheduler().runTaskAsynchronously(SocketChat.getPlugin(), new Runnable() {
+                @Override
+                public void run() {
+                    for (WebSocket socket : SocketListener.activeSessions.keySet()) {
+                        if (socket.isOpen()) {
+                            socket.send(String.format("chat.receive=%s", formattedMessage.replaceAll("§", "&")));
+                        }
+                    }
+                }
+            });
+        }
     }
     
     @EventHandler

@@ -10,7 +10,6 @@ import java.util.logging.Level;
  * @time 12:54 AM
  */
 public class Utilities {
-    private static final boolean debugMode = true;
     private static final String prefix = "";
 
     /**
@@ -18,7 +17,7 @@ public class Utilities {
      * @param debugMessage Message to be displayed to the console.
      */
     public static void debug(String debugMessage) {
-        if (debugMode) SocketChat.getPlugin().getLogger().log(Level.INFO, prefix.concat(debugMessage));
+        if (SocketChat.debugMode) SocketChat.getPlugin().getLogger().log(Level.INFO, prefix.concat(debugMessage));
     }
 
     /**

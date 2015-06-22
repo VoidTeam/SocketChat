@@ -32,6 +32,7 @@ public class SocketChat extends JavaPlugin {
     public static int socketPort = 0;
     public static String apiURL = "";
     public static String publicKey = "";
+    public static boolean debugMode = false;
 
     @Override
     public void onDisable() {
@@ -116,6 +117,7 @@ public class SocketChat extends JavaPlugin {
         socketPort = getConfig().getInt("socketPort");
         apiURL = getConfig().getString("apiURL");
         publicKey = getConfig().getString("publicKey");
+        debugMode = Boolean.valueOf(getConfig().getString("debugMode"));
     }
 
     @Override
