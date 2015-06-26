@@ -178,9 +178,8 @@ public class SocketListener extends WebSocketServer {
      * @param username Username of the active session.
      */
     public static boolean sendMessage(String username, String payload) {
-        if (activeSessions.containsValue(username)) {
             for (WebSocket webSocket : activeSessions.keySet()) {
-                if (activeSessions.get(webSocket).equals(username)) {
+                if (activeSessions.get(webSocket).equalsIgnoreCase(username)) {
                     if (webSocket.isOpen()) {
                         webSocket.send(payload);
                         return true;
@@ -189,7 +188,6 @@ public class SocketListener extends WebSocketServer {
                     }
                 }
             }
-        }
 
         return false;
     }

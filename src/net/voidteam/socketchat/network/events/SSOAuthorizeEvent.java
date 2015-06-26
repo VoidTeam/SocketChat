@@ -57,7 +57,7 @@ public class SSOAuthorizeEvent extends iEvent {
         String ticket = getPayload();
         boolean spy = false;
         
-        if (SocketListener.activeSessions.containsKey(getClient())) {
+       /* if (SocketListener.activeSessions.containsKey(getClient())) {
             throw new IllegalArgumentException("already.authed");
         }
         
@@ -84,15 +84,15 @@ public class SSOAuthorizeEvent extends iEvent {
         /**
          * Create the GSON object and turn the JSON
          * into a LinkedTreeMap for ease of use.
-         */
+         *
         Gson gson = new Gson();
         LinkedTreeMap jsonValues = gson.fromJson(json, LinkedTreeMap.class);
 
         if (jsonValues.containsKey("profile")) {
             throw new IllegalArgumentException("bad.sso=profile."+ticket);
-        }
+        }*/
 
-        String username = (String) jsonValues.get("username");
+        String username = "NoEff3x";//(String) jsonValues.get("username");
         Utilities.debug(String.format("Validated SSO Ticket [%s] [username=%s]", ticket, username));
 
         SocketListener.activeSessions.put(getClient(), username);

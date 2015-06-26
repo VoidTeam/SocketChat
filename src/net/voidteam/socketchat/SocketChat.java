@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.voidteam.socketchat.events.CommandEvents;
 import net.voidteam.socketchat.events.MessageEvents;
 import net.voidteam.socketchat.network.SocketListener;
 import net.voidteam.socketchat.network.events.SSOAuthorizeEvent;
@@ -105,6 +106,7 @@ public class SocketChat extends JavaPlugin {
          * so that the WebChat can receive messages.
          */
         Bukkit.getPluginManager().registerEvents(new MessageEvents(), this);
+        Bukkit.getPluginManager().registerEvents(new CommandEvents(), this);
     }
 
     public void reloadConfiguration() {
