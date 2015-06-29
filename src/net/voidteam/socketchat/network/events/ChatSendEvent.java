@@ -82,7 +82,7 @@ public class ChatSendEvent extends iEvent {
              * Check if they are in-webchat.
              */
             for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
-                if (SocketListener.activeSessions.get(webSocket).equalsIgnoreCase(to)) {
+                if (SocketListener.activeSessions.get(webSocket).equalsIgnoreCase(to) || SocketListener.activeSessions.get(webSocket).toLowerCase().startsWith(to.toLowerCase())) {
                     to = SocketListener.activeSessions.get(webSocket);
                     CommandEvents.sendPMToWebChat(username, to, msg.toString());
                     break;
@@ -98,84 +98,16 @@ public class ChatSendEvent extends iEvent {
                  */
                 String chatMessage = String.format("&7[%s &7-> me] &r%s", username, msg.toString());
                 Bukkit.getServer().getPlayer(to).sendMessage(ChatColor.translateAlternateColorCodes('&', chatMessage));
-
-                /**
-                 * So replies work correctly.
-                 */
-                if (CommandEvents.pmList.containsKey(to)) {
-                    CommandEvents.pmList.replace(to, username);
-                } else {
-                    CommandEvents.pmList.put(to, username);
-                }
-
-                if (CommandEvents.pmList.containsKey(username)) {
-                    CommandEvents.pmList.replace(username, to);
-                } else {
-                    CommandEvents.pmList.put(username, to);
-                }
             }
+
+            /**
+             * Send a confirmation back to the webchat.
+             */
+
 
             return;
         }
 
-        /**
-         * Replying to a private-message.
-         */
-        if (commandParts[0].equalsIgnoreCase("/er") || commandParts[0].equalsIgnoreCase("/reply") || commandParts[0].equalsIgnoreCase("/ereply") || commandParts[0].equalsIgnoreCase("/r")) {
-            if (!CommandEvents.pmList.containsKey(username)) {
-                return;
-            }
-
-            String to = CommandEvents.pmList.get(username);
-
-            String[] bits = new String[commandParts.length - 1];
-            for (int x = 1; x < commandParts.length; x++) {
-                bits[x - 1] = commandParts[x];
-            }
-
-            StringBuilder msg = new StringBuilder();
-            for (String s : bits) {
-                msg.append(s + " ");
-            }
-
-            /**
-             * Check if they are in-webchat.
-             */
-            for (WebSocket webSocket : SocketListener.activeSessions.keySet()) {
-                if (SocketListener.activeSessions.get(webSocket).equalsIgnoreCase(to)) {
-                    CommandEvents.sendPMToWebChat(username, to, msg.toString());
-                    break;
-                }
-            }
-
-            /**
-             * Check if they are in-game.
-             */
-            if (Bukkit.getServer().getPlayer(to) != null && Bukkit.getServer().getPlayer(to).isOnline()) {
-                /**
-                 * Now so it won't send a player not online message, if they aren't online.
-                 */
-                String chatMessage = String.format("&7[%s &7-> me] &r%s", username, msg.toString());
-                Bukkit.getServer().getPlayer(to).sendMessage(ChatColor.translateAlternateColorCodes('&', chatMessage));
-
-                /**
-                 * So replies work correctly.
-                 */
-                if (CommandEvents.pmList.containsKey(to)) {
-                    CommandEvents.pmList.replace(to, username);
-                } else {
-                    CommandEvents.pmList.putIfAbsent(to, username);
-                }
-
-                if (CommandEvents.pmList.containsKey(username)) {
-                    CommandEvents.pmList.replace(username, to);
-                } else {
-                    CommandEvents.pmList.putIfAbsent(username, to);
-                }
-            }
-
-            return;
-        }
 
         if (Bukkit.getServer().getOnlinePlayers().size() > 0) {
             try {
