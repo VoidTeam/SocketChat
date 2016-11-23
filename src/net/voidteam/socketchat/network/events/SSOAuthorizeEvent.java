@@ -1,5 +1,11 @@
 package net.voidteam.socketchat.network.events;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import net.ess3.api.IEssentials;
 import net.ess3.api.IUser;
 import net.milkbowl.vault.permission.Permission;
@@ -14,20 +20,6 @@ import com.google.gson.Gson;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.java_websocket.WebSocket;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Created by Robby Duke on 6/19/14.
- * Copyright (c) 2014
- *
- * @project SocketChat
- * @time 10:55 AM
- */
 public class SSOAuthorizeEvent extends iEvent {
     /**
      * Default constructor for the iEvent class.

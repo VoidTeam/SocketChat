@@ -1,10 +1,3 @@
-/*
- * @date   6/26/15
- * @author Robert Duke
- *
- * This file is subject to the terms and conditions defined in
- * file 'LICENSE', which is part of this source code package.
- */
 package net.voidteam.socketchat.events;
 
 import net.voidteam.socketchat.SocketChat;
@@ -18,24 +11,31 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.java_websocket.WebSocket;
 
-import java.util.HashMap;
-
-public class CommandEvents implements Listener {
-
+public class CommandEvents implements Listener
+{
+    /**
+     * Process any whisper/tell messages to send to players on WebChat.
+     *
+     * @param event PlayerCommandPreprocessEvent
+     */
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void commandProcess(PlayerCommandPreprocessEvent event) {
+    @SuppressWarnings("deprecation")
+    public void commandProcess(PlayerCommandPreprocessEvent event)
+    {
         Player player = event.getPlayer();
         String[] commandParts = event.getMessage().split(" ");
 
-        if (commandParts[0].equalsIgnoreCase("/msg") ||
-                commandParts[0].equalsIgnoreCase("/w") ||
-                commandParts[0].equalsIgnoreCase("/m") ||
-                commandParts[0].equalsIgnoreCase("/t") ||
-                commandParts[0].equalsIgnoreCase("/emsg") ||
-                commandParts[0].equalsIgnoreCase("/tell") ||
-                commandParts[0].equalsIgnoreCase("/etell") ||
-                commandParts[0].equalsIgnoreCase("/whisper") ||
-                commandParts[0].equalsIgnoreCase("/ewhisper")) {
+        if (
+            commandParts[0].equalsIgnoreCase("/msg") ||
+            commandParts[0].equalsIgnoreCase("/w") ||
+            commandParts[0].equalsIgnoreCase("/m") ||
+            commandParts[0].equalsIgnoreCase("/t") ||
+            commandParts[0].equalsIgnoreCase("/emsg") ||
+            commandParts[0].equalsIgnoreCase("/tell") ||
+            commandParts[0].equalsIgnoreCase("/etell") ||
+            commandParts[0].equalsIgnoreCase("/whisper") ||
+            commandParts[0].equalsIgnoreCase("/ewhisper")
+        ) {
             String to = commandParts[1];
 
             boolean shouldBreak = true;
@@ -47,25 +47,22 @@ public class CommandEvents implements Listener {
                 }
             }
 
-            if(shouldBreak) {
+            if (shouldBreak) {
                 return;
             }
 
             String[] bits = new String[commandParts.length - 2];
-            for (int x = 2; x < commandParts.length; x++) {
-                bits[x - 2] = commandParts[x];
-            }
+            System.arraycopy(commandParts, 2, bits, 0, commandParts.length - 2);
 
             StringBuilder msg = new StringBuilder();
+
             for (String s : bits) {
-                msg.append(s + " ");
+                msg.append(s).append(" ");
             }
 
             sendPMToWebChat(player.getName(), to, msg.toString());
 
-            /**
-             * Now so it won't send a player not online message, if they aren't online.
-             */
+            // So it won't send a player not online message, if they aren't online.
             if (Bukkit.getServer().getPlayer(to) == null || !Bukkit.getServer().getPlayer(to).isOnline()) {
                 String chatMessage = String.format("&7[me&7 -> %s&7] &r%s", to, msg.toString());
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatMessage));
@@ -75,10 +72,16 @@ public class CommandEvents implements Listener {
 
     }
 
-    public static void sendPMToWebChat(String from, String to, String message) {
-        /**
-         * Check if the webchat session list contains that player.
-         */
+    /**
+     * Send private message to WebChat player.
+     *
+     * @param from Username of the player sending the message.
+     * @param to Username of the player receiving the message.
+     * @param message The message.
+     */
+    public static void sendPMToWebChat(String from, String to, String message)
+    {
+        // Check if the WebChat session list contains that player.
         if (((SocketChat) SocketChat.getPlugin()).getWebChatters().contains(to)) {
             SocketListener.sendMessage(to, String.format("chat.receive=&7[%s &7-> me] &r%s", from, message));
         }

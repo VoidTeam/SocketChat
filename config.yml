@@ -12,7 +12,7 @@
 socketPort: 20061
 
 # API url to check the sso tickets against.
-apiURL: https://voidteam.net/minecraft/api/
+apiURL: http://voidteam.net/minecraft/api/
 
 # Public SSO key, for read-only instances.
 publicKey: publicSSO

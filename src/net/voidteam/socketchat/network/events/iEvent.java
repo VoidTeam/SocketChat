@@ -2,29 +2,41 @@ package net.voidteam.socketchat.network.events;
 
 import org.java_websocket.WebSocket;
 
-/**
- * Created by Robby Duke on 6/19/14.
- * Copyright (c) 2014
- *
- * @project SocketChat
- * @time 10:54 AM
- */
-public abstract class iEvent {
+public abstract class iEvent
+{
     private final String payload;
     private final WebSocket client;
 
-    public iEvent(WebSocket client, String payload) {
+    iEvent(WebSocket client, String payload)
+    {
         this.payload = payload;
         this.client = client;
     }
 
-    public final WebSocket getClient() {
+    /**
+     * Client/Socket that this event belongs to.
+     *
+     * @return WebSocket
+     */
+    public final WebSocket getClient()
+    {
         return this.client;
     }
 
-    public final String getPayload() {
+    /**
+     * Contents of this event.
+     *
+     * @return String
+     */
+    public final String getPayload()
+    {
         return this.payload;
     }
 
+    /**
+     * Process to occur when this event happens.
+     *
+     * @throws IllegalArgumentException
+     */
     public abstract void run() throws IllegalArgumentException;
 }

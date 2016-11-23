@@ -1,10 +1,10 @@
 name: 'SocketChat'
-version: 0.0.4
+version: 0.0.5
 description: 'Server -> Client WebSocket bridge for Bukkit.'
 
 author: NoEff3x
 authors: [jacklink01, Colbydude]
-website: http://voidteam.net/minecraft/chat
+website: https://voidteam.net/
 
 main: net.voidteam.socketchat.SocketChat
 database: false
